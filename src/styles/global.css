@@ -1,0 +1,215 @@
+/*
+  Wanderloop global styles.
+  Loaded once in the base layout, after tokens.css.
+*/
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* A component's own `display` rule (flex, grid, ...) otherwise beats the
+   browser's default `[hidden] { display: none }`, since both are normal-
+   specificity author/UA rules and origin order decides, not specificity. */
+[hidden] {
+  display: none !important;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-family);
+  font-size: var(--text-body-size);
+  line-height: var(--text-body-lh);
+  font-weight: var(--text-body-weight);
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+a {
+  color: inherit;
+}
+
+/* The browser's own form-control styling otherwise wins on <button>:
+   `font` (size included) isn't inherited by default, and on mobile Safari
+   `color` isn't either — a <button> there renders its label in the system
+   blue tint instead of the surrounding text color unless this is explicit. */
+button {
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+h1,
+h2,
+h3,
+p {
+  margin: 0;
+}
+
+/* Visible focus ring everywhere, 3:1 contrast against the background. */
+:focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+/* Skip link: hidden until focused, then pinned to the top of the viewport. */
+.skip-link {
+  position: absolute;
+  top: -100%;
+  left: var(--space-2);
+  z-index: 100;
+  padding: var(--space-2) var(--space-4);
+  background: var(--color-bg);
+  color: var(--color-text);
+  border-radius: var(--radius-field);
+  box-shadow: var(--shadow-popover);
+}
+
+.skip-link:focus {
+  top: var(--space-2);
+}
+
+.container {
+  max-width: var(--content-max-width);
+  margin-inline: auto;
+  padding-inline: var(--page-padding-x);
+}
+
+/* Shared button styles: hero CTAs, card actions, 404 actions. */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-button);
+  font-weight: var(--weight-semibold);
+  text-decoration: none;
+  border: 1px solid transparent;
+  white-space: nowrap;
+  min-height: 44px;
+}
+
+.btn--solid {
+  background: var(--color-accent-strong);
+  color: var(--color-on-accent);
+  transition: box-shadow 0.2s ease;
+}
+
+.btn--solid:hover,
+.btn--solid:focus-visible {
+  box-shadow: 0 8px 16px rgba(44, 53, 36, 0.3);
+}
+
+.btn--ghost {
+  background: var(--color-accent-soft);
+  color: var(--color-accent-text);
+  transition: box-shadow 0.2s ease;
+}
+
+.btn--outline {
+  background: transparent;
+  border: 1px solid var(--color-line-strong);
+  color: var(--color-text);
+  transition: box-shadow 0.2s ease;
+}
+
+.btn--ghost:hover,
+.btn--ghost:focus-visible,
+.btn--outline:hover,
+.btn--outline:focus-visible {
+  box-shadow: 0 8px 16px rgba(44, 53, 36, 0.3);
+}
+
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: var(--space-5);
+  transform: translateX(-50%);
+  background: var(--color-text);
+  color: var(--color-bg);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-field);
+  max-width: calc(100% - var(--space-5) * 2);
+  z-index: 200;
+}
+
+/* Custom pointer: ONLY over a photo or the solid accent button, the native
+   cursor is swapped for a blurred color dot (moved by src/scripts/cursor.js).
+   Everywhere else the normal system cursor stays — resize handles, the text
+   caret, not-allowed, OS pointer-accessibility settings (bigger/high-contrast
+   cursor) all keep working as expected. Only on devices with an actual mouse;
+   touchscreens never show a cursor anyway. The `html.cursor-active *` rule is
+   scoped to that one state, so it only overrides the usual `cursor: pointer`
+   on buttons/links while the dot is actually showing. */
+.cursor-dot {
+  display: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  html.cursor-active,
+  html.cursor-active * {
+    cursor: none !important;
+  }
+
+  .cursor-dot {
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    /* White by default: over a photo or the solid accent button, an
+       accent-colored dot would blend straight into the background. */
+    background: var(--color-bg);
+    filter: blur(12px);
+    opacity: 0;
+    pointer-events: none;
+    z-index: 9999;
+    transition: opacity 0.2s ease, background-color 0.2s ease;
+  }
+
+  html.cursor-active .cursor-dot {
+    opacity: 0.85;
+  }
+
+  /* Over the ghost/outline buttons (light or transparent backgrounds),
+     the dot switches to accent-colored instead of white. */
+  .cursor-dot--accent {
+    background: var(--color-accent);
+  }
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

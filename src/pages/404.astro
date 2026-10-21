@@ -1,0 +1,92 @@
+---
+// Design: reference/figma/desktop/09-404.png and mobile/09-404.png.
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="Page not found">
+  <section class="container not-found">
+    <p class="not-found__code" aria-hidden="true">404</p>
+    <h1>This trip doesn't exist</h1>
+    <p class="not-found__sub">The page you're looking for isn't here.</p>
+    <div class="not-found__actions">
+      <a href="/tours" class="btn btn--solid">Browse all trips</a>
+      <a href="/" class="btn btn--outline">Back to home</a>
+    </div>
+  </section>
+  <svg class="not-found__decoration" viewBox="0 0 400 60" preserveAspectRatio="none" aria-hidden="true">
+    <polygon
+      fill="#F1F7DE"
+      points="0,60 0,40 40,15 80,35 120,10 160,30 200,5 240,32 280,12 320,38 360,18 400,40 400,60"
+    ></polygon>
+  </svg>
+</Layout>
+
+<style>
+  .not-found {
+    padding-block: var(--space-6);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .not-found__code {
+    font-size: 120px;
+    line-height: 1;
+    font-weight: var(--weight-black);
+    letter-spacing: var(--text-display-ls);
+    color: var(--color-accent);
+    margin-bottom: var(--space-3);
+  }
+
+  .not-found h1 {
+    font-size: var(--text-display-size);
+    line-height: var(--text-display-lh);
+    letter-spacing: var(--text-display-ls);
+    font-weight: var(--text-display-weight);
+  }
+
+  .not-found__sub {
+    color: var(--color-text-subtle);
+    margin-top: var(--space-2);
+    margin-bottom: var(--space-5);
+  }
+
+  .not-found__actions {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    width: 100%;
+  }
+
+  .not-found .btn--outline {
+    color: var(--color-accent-text);
+  }
+
+  /* A soft mountain-range silhouette between the page and the footer —
+     purely decorative (hence an unlabeled SVG, not an image with alt
+     text). The fill color is read directly from the Figma PNG: it isn't
+     one of the design tokens. */
+  .not-found__decoration {
+    display: block;
+    width: 100%;
+    height: 64px;
+    margin-top: var(--space-6);
+    /* Footer.astro gives itself a 64px top margin for the normal case
+       (ending right after body copy or cards); here the decoration is
+       already that spacer, so this cancels the footer's own margin and
+       lets the mountains sit flush against it, like in Figma. */
+    margin-bottom: calc(-1 * var(--space-6));
+  }
+
+  @media (min-width: 768px) {
+    .not-found__actions {
+      flex-direction: row;
+      width: auto;
+    }
+
+    .not-found__code {
+      font-size: 180px;
+    }
+  }
+</style>

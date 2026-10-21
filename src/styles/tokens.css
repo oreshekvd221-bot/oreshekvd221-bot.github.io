@@ -1,0 +1,137 @@
+/*
+  Wanderloop design tokens
+  Source: Veronika's Notion token table (values from Figma), 2026-10-15.
+
+  Rules for developers:
+  - Never hardcode a color, font size, radius, shadow or spacing that exists here.
+  - "Design" tokens are the exact Figma values. Use them for backgrounds, fills,
+    borders of decorative elements, large text (24px+ or 18.66px+ bold) and icons.
+  - Several Figma colors FAIL WCAG AA when used for normal-size text.
+    For text, use the "-text" / "-strong" tokens in the ACCESSIBLE ADDITIONS block.
+    Those values were proposals pending Veronika's approval; as of 2026-10-18 she
+    confirmed --color-accent-text should be the raw Figma terracotta (not the
+    darker accessible shade) — see that token's own comment for the contrast trade-off.
+  - Mobile frame is 402px wide, desktop frame is 1440px wide. Build mobile-first and fluid.
+*/
+
+/*
+  Self-hosted Jost (variable font, weights 100–900), downloaded from Google
+  Fonts (fonts.google.com/specimen/Jost, OFL licensed) on 2026-10-16, Latin
+  subset only (the site's UI language is English). One file covers every
+  weight used in --weight-* below.
+*/
+@font-face {
+  font-family: 'Jost';
+  src: url('../assets/fonts/jost-variable.woff2') format('woff2');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  /* ---------- COLORS: design ---------- */
+  --color-bg: #FFFDF7;               /* page background */
+  --color-surface: #F5F0E1;          /* cards, surfaces */
+  --color-text: #2C3524;             /* main text */
+  --color-text-muted: #A5A5A5;       /* design value; FAILS contrast as text, see --color-text-subtle */
+  --color-accent: #C97C5D;           /* terracotta: buttons, links, icons */
+  --color-accent-soft: #F5F0E1;      /* selected card, badge background */
+  --color-accent-2: #7D8C5C;         /* olive */
+  --color-line: #A5A5A5;             /* 1px lines and borders (decorative) */
+  --color-footer-bg: #F5F0E1;
+  --color-footer-text: #7D8C5C;      /* design value; FAILS contrast, see --color-accent-2-text */
+
+  /* Status chips: text on background (design values) */
+  --color-scarce: #C97C5D;       --color-scarce-bg: #F5F0E1;
+  --color-ok: #7D8C5C;           --color-ok-bg: #E5F2CA;
+  --color-unavailable: #C97C5D;  --color-unavailable-bg: #F5F0E1;
+
+  /* Button hover (design): outlined button, 1px accent border, accent text */
+  --button-hover-border: 1px solid var(--color-accent);
+
+  /* ---------- COLORS: ACCESSIBLE ADDITIONS (proposed, WCAG 2.2 AA) ---------- */
+  /* DECISION 2026-10-19 (Veronika): all "accessible" shades below are set back to the exact
+     Figma values. The site must look like the Figma mockup. Do NOT darken any of these
+     again and do not hardcode other shades; the contrast trade-off is accepted. */
+  --color-text-subtle: #A5A5A5;      /* Figma muted gray (2.4:1 on bg) */
+  --color-accent-text: #C97C5D;      /* terracotta as text, Veronika's call: raw Figma value, 3.2:1 on bg — below WCAG AA's 4.5:1 for normal text */
+  --color-accent-strong: #C97C5D;    /* Figma terracotta button background with white text (3.2:1) */
+  --color-accent-2-text: #7D8C5C;    /* Figma olive as text (3.6:1 on bg) */
+  --color-line-strong: #A5A5A5;      /* Figma line gray for input and control borders */
+  --color-on-accent: #FFFFFF;        /* text on --color-accent-strong */
+  --color-focus: #2C3524;            /* focus ring, 12.57:1 on bg */
+  --color-error: #C97C5D;            /* Figma error PNGs use terracotta for borders and messages */
+  --color-error-bg: #F5F0E1;
+
+  /* Scarce / unavailable chip text must use the accessible terracotta (4.56:1 on surface) */
+  --color-scarce-text: var(--color-accent-text);
+  --color-unavailable-text: var(--color-accent-text);
+  --color-ok-text: var(--color-accent-2-text);
+
+  /* ---------- TYPOGRAPHY ---------- */
+  --font-family: 'Jost', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --weight-light: 300;
+  --weight-regular: 400;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+  --weight-black: 900;
+
+  /* Mobile scale (default, mobile-first) */
+  --text-display-size: 26px;  --text-display-lh: 32px;  --text-display-ls: -0.015em; --text-display-weight: var(--weight-bold);
+  --text-h2-size: 20px;       --text-h2-lh: 26px;       --text-h2-ls: -0.005em;      --text-h2-weight: var(--weight-semibold);
+  --text-h3-size: 20px;       --text-h3-lh: 26px;       --text-h3-ls: -0.005em;      --text-h3-weight: var(--weight-semibold);
+  --text-body-size: 16px;     --text-body-lh: 24px;     --text-body-ls: 0;           --text-body-weight: var(--weight-regular);
+  --text-caption-size: 12px;  --text-caption-lh: 16px;  --text-caption-ls: 0.01em;   --text-caption-weight: var(--weight-light);
+
+  /* ---------- SPACING ---------- */
+  --space-0: 0;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 24px;
+  --space-5: 32px;
+  --space-6: 64px;
+
+  --page-padding-x: 20px;   /* mobile */
+  /* The mobile frame's own width (402), not the 362px content area inside
+     it — .container (below) is border-box and carves out that 362px itself
+     via its own padding-inline, the same way the desktop value below is
+     the 1440 frame width, not the 1360 content width. Using 362 here was
+     double-subtracting the side padding: max-width 362 + padding-inline 20
+     + the auto-margin centering that 362 inside a wider 402 viewport added
+     up to a 40px inset instead of 20px. */
+  --content-max-width: 402px;
+
+  /* ---------- RADIUS ---------- */
+  --radius-field: 8px;
+  --radius-field-lg: 12px;    /* bigger tap targets, e.g. the search panel's date cards */
+  --radius-button: 999px;
+  --radius-card: 24px;
+  --radius-pill: 999px;
+
+  /* ---------- SHADOWS ---------- */
+  --shadow-card: 0 4px 4px rgba(190, 190, 190, 0.25);
+  --shadow-popover: 0 4px 4px rgba(190, 190, 190, 0.25);
+
+  /* ---------- FRAMES (reference only: CSS cannot use variables in media queries) ---------- */
+  --frame-mobile: 402px;
+  --frame-desktop: 1440px;
+}
+
+/* Desktop scale. 768px is the switch point (proposed; Figma only has 402 and 1440 frames). */
+@media (min-width: 768px) {
+  :root {
+    --text-display-size: 32px; --text-display-lh: 38px; --text-display-ls: -0.02em;  --text-display-weight: var(--weight-black);
+    --text-h2-size: 24px;      --text-h2-lh: 30px;      --text-h2-ls: -0.01em;       --text-h2-weight: var(--weight-bold);
+    /* h3, body and caption are the same on desktop and mobile */
+    --page-padding-x: 40px;
+    /* .container is border-box, so its padding eats into max-width — 1440
+       (not 1360) is what leaves a 1360px content area after the 2×40px
+       side padding, matching the Figma desktop frame exactly. */
+    --content-max-width: 1440px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root { scroll-behavior: auto; }
+}

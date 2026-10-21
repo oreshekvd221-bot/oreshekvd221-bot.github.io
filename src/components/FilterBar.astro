@@ -1,0 +1,499 @@
+---
+// Catalog filter chips. Each opens a flyout panel anchored below that chip
+// (not a shared block under the whole row); selecting an option re-filters
+// the grid (see src/scripts/catalog.js). Content/labels:
+// reference/figma/components/filter-*.png. Those PNGs show placeholder
+// numbers (e.g. "$720"); the real min/max price below comes from tours.json.
+import chevronIcon from '../assets/icons/chevron-down-24.svg';
+import { TYPE_LABELS, formatPrice } from '../scripts/tours.js';
+
+interface Props {
+  tours: any[];
+}
+
+const { tours } = Astro.props;
+
+const countries = [...new Set(tours.map((t) => t.country))].sort();
+
+const types = [...new Set(tours.map((t) => t.type))].map((value) => ({
+  value,
+  label: TYPE_LABELS[value] ?? value,
+}));
+
+const durationOptions = [
+  { value: 'up-to-5', label: 'Up to 5 days' },
+  { value: '6-8', label: '6–8 days' },
+  { value: '9-plus', label: '9+ days' },
+];
+
+const difficulties = ['Easy', 'Moderate', 'Challenging'];
+
+const prices = tours.map((t) => t.priceAdult);
+const minPrice = Math.min(...prices);
+const maxPrice = Math.max(...prices);
+
+const spotsOptions = [1, 2, 3, 4];
+
+const months = [...new Set(tours.flatMap((t) => t.departures.map((d) => d.start.slice(0, 7))))].sort();
+const monthOptions = months.map((key) => ({
+  value: key,
+  label: new Date(`${key}-01T00:00:00`).toLocaleString('en-US', { month: 'long', year: 'numeric' }),
+}));
+---
+
+<div class="filter-bar" data-filter-bar>
+  {/* Mobile only (see CSS): sits behind the open filter panel, blurring the
+      page underneath. Clicking it closes the panel (wired in catalog.js). */}
+  <div class="filter-backdrop" data-filter-backdrop hidden></div>
+  <div class="filter-bar__row">
+    <div class="filter-bar__item">
+      <button type="button" class="filter-chip" data-filter-trigger="dest" aria-expanded="false" aria-controls="panel-dest">
+        <span data-chip-label="dest">Destination</span>
+        <img src={chevronIcon.src} alt="" width="16" height="16" />
+      </button>
+      <div id="panel-dest" class="filter-panel" data-filter-panel="dest" hidden>
+        <h3>Destination</h3>
+        <div class="filter-panel__options filter-panel__options--list" role="group" aria-label="Destination">
+          {
+            countries.map((country) => (
+              <button type="button" class="filter-option filter-option--radio" data-filter-option data-filter-key="dest" data-value={country} aria-pressed="false">
+                <span class="filter-option__dot" aria-hidden="true" />
+                {country}
+              </button>
+            ))
+          }
+        </div>
+      </div>
+    </div>
+
+    <div class="filter-bar__item">
+      <button type="button" class="filter-chip" data-filter-trigger="month" aria-expanded="false" aria-controls="panel-month">
+        <span data-chip-label="month">Departure dates</span>
+        <img src={chevronIcon.src} alt="" width="16" height="16" />
+      </button>
+      <div id="panel-month" class="filter-panel" data-filter-panel="month" hidden>
+        <h3>Departure dates</h3>
+        <div class="filter-panel__options" role="group" aria-label="Departure dates">
+          {
+            monthOptions.map((month) => (
+              <button type="button" class="filter-option filter-option--pill" data-filter-option data-filter-key="month" data-value={month.value} aria-pressed="false">
+                {month.label}
+              </button>
+            ))
+          }
+        </div>
+      </div>
+    </div>
+
+    <div class="filter-bar__item">
+      <button type="button" class="filter-chip" data-filter-trigger="type" aria-expanded="false" aria-controls="panel-type">
+        <span data-chip-label="type">Trip type</span>
+        <img src={chevronIcon.src} alt="" width="16" height="16" />
+      </button>
+      <div id="panel-type" class="filter-panel" data-filter-panel="type" hidden>
+        <h3>Trip type</h3>
+        <div class="filter-panel__options" role="group" aria-label="Trip type">
+          {
+            types.map((type) => (
+              <button type="button" class="filter-option filter-option--pill" data-filter-option data-filter-key="type" data-value={type.value} aria-pressed="false">
+                {type.label}
+              </button>
+            ))
+          }
+        </div>
+      </div>
+    </div>
+
+    <div class="filter-bar__item">
+      <button type="button" class="filter-chip" data-filter-trigger="duration" aria-expanded="false" aria-controls="panel-duration">
+        <span data-chip-label="duration">Duration</span>
+        <img src={chevronIcon.src} alt="" width="16" height="16" />
+      </button>
+      <div id="panel-duration" class="filter-panel" data-filter-panel="duration" hidden>
+        <h3>Duration</h3>
+        <div class="filter-panel__options" role="group" aria-label="Duration">
+          {
+            durationOptions.map((option) => (
+              <button type="button" class="filter-option filter-option--pill" data-filter-option data-filter-key="duration" data-value={option.value} aria-pressed="false">
+                {option.label}
+              </button>
+            ))
+          }
+        </div>
+      </div>
+    </div>
+
+    <div class="filter-bar__item">
+      <button type="button" class="filter-chip" data-filter-trigger="difficulty" aria-expanded="false" aria-controls="panel-difficulty">
+        <span data-chip-label="difficulty">Difficulty</span>
+        <img src={chevronIcon.src} alt="" width="16" height="16" />
+      </button>
+      <div id="panel-difficulty" class="filter-panel" data-filter-panel="difficulty" hidden>
+        <h3>Difficulty</h3>
+        <div class="filter-panel__options" role="group" aria-label="Difficulty">
+          {
+            difficulties.map((difficulty) => (
+              <button type="button" class="filter-option filter-option--pill" data-filter-option data-filter-key="difficulty" data-value={difficulty} aria-pressed="false">
+                {difficulty}
+              </button>
+            ))
+          }
+        </div>
+      </div>
+    </div>
+
+    <div class="filter-bar__item">
+      <button type="button" class="filter-chip" data-filter-trigger="price" aria-expanded="false" aria-controls="panel-price">
+        <span data-chip-label="price">Price</span>
+        <img src={chevronIcon.src} alt="" width="16" height="16" />
+      </button>
+      <div id="panel-price" class="filter-panel" data-filter-panel="price" hidden>
+        <h3>Price per person</h3>
+        <div class="filter-panel__price-labels">
+          <span><span class="filter-panel__price-word">from</span> <span data-price-label="min">{formatPrice(minPrice)}</span></span>
+          <span><span class="filter-panel__price-word">to</span> <span data-price-label="max">{formatPrice(maxPrice)}</span></span>
+        </div>
+        <div class="price-slider">
+          <span class="price-slider__track" aria-hidden="true"></span>
+          <span class="price-slider__fill" data-price-fill></span>
+          <input
+            type="range"
+            class="price-slider__input"
+            data-price-input="min"
+            min={minPrice}
+            max={maxPrice}
+            value={minPrice}
+            step="10"
+            aria-label="Minimum price per adult"
+          />
+          <input
+            type="range"
+            class="price-slider__input"
+            data-price-input="max"
+            min={minPrice}
+            max={maxPrice}
+            value={maxPrice}
+            step="10"
+            aria-label="Maximum price per adult"
+          />
+        </div>
+      </div>
+    </div>
+
+    <div class="filter-bar__item">
+      <button type="button" class="filter-chip" data-filter-trigger="spots" aria-expanded="false" aria-controls="panel-spots">
+        <span data-chip-label="spots">Spots</span>
+        <img src={chevronIcon.src} alt="" width="16" height="16" />
+      </button>
+      <div id="panel-spots" class="filter-panel" data-filter-panel="spots" hidden>
+        <h3>Minimum spots available</h3>
+        <div class="filter-panel__options" role="group" aria-label="Minimum spots available">
+          {
+            spotsOptions.map((n) => (
+              <button type="button" class="filter-option filter-option--pill filter-option--round" data-filter-option data-filter-key="spots" data-value={n} aria-pressed="false">
+                {n === 4 ? '4+' : n}
+              </button>
+            ))
+          }
+        </div>
+      </div>
+    </div>
+
+    <button type="button" class="filter-bar__clear" data-filter-clear hidden>Clear filters</button>
+  </div>
+</div>
+
+<style>
+  .filter-bar {
+    position: relative;
+  }
+
+  .filter-bar__row {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: flex-start;
+    gap: var(--space-2);
+    overflow-x: auto;
+    padding-block: var(--space-3);
+    scrollbar-width: thin;
+  }
+
+  .filter-bar__item {
+    position: relative;
+    flex-shrink: 0;
+  }
+
+  .filter-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    flex-shrink: 0;
+    border: 1px solid var(--color-line-strong);
+    border-radius: var(--radius-pill);
+    background: var(--color-bg);
+    color: var(--color-text);
+    padding: var(--space-2) var(--space-3);
+    min-height: 44px;
+  }
+
+  .filter-chip img {
+    transition: transform 0.2s ease;
+  }
+
+  /* Chevron flips to point up while its panel is open — the chip itself
+     doesn't change color just for being open, only for having a value
+     picked (.is-active below), per the mockup (Frame 208 / Frame 215). */
+  .filter-chip[aria-expanded='true'] img {
+    transform: rotate(180deg);
+  }
+
+  .filter-chip.is-active {
+    border-color: var(--color-accent);
+    color: var(--color-accent-text);
+    background: var(--color-accent-soft);
+  }
+
+  .filter-bar__clear {
+    flex-shrink: 0;
+    border: none;
+    background: none;
+    color: var(--color-accent-text);
+    font-weight: var(--weight-semibold);
+    text-decoration: underline;
+    padding: var(--space-2) var(--space-3);
+  }
+
+  /* Flyout panel, anchored to its own chip (.filter-bar__item is the
+     positioning context) instead of a shared block under the whole row. */
+  .filter-panel {
+    position: absolute;
+    top: calc(100% + var(--space-2));
+    /* Centered on the chip rather than anchored to its left edge: a chip
+       near either side of the (often horizontally-scrolled, on mobile)
+       row would otherwise push the panel half off-screen. */
+    left: 50%;
+    transform: translateX(-50%);
+    min-width: 260px;
+    max-width: min(320px, calc(100vw - 2 * var(--page-padding-x, 20px)));
+    background: var(--color-bg);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-popover);
+    padding: var(--space-4);
+    z-index: 50;
+  }
+
+  .filter-backdrop {
+    display: none;
+  }
+
+  @media (max-width: 767.98px) {
+    /* On mobile the flyout becomes a full overlay instead of a small
+       dropdown anchored to its chip — easier to use on a small screen, and
+       the blurred backdrop keeps focus on it. */
+    /* `display: none` by default even here — relying on the `[hidden]`
+       attribute alone risks some mobile WebKit versions keeping a
+       `position: fixed` + `backdrop-filter` element in the touch hit-test
+       layer while hidden, silently blocking taps on the page underneath. */
+    .filter-backdrop:not([hidden]) {
+      display: block;
+      position: fixed;
+      inset: 0;
+      background: rgba(44, 53, 36, 0.4);
+      backdrop-filter: blur(6px);
+      z-index: 90;
+    }
+
+    .filter-panel {
+      position: fixed;
+      top: auto;
+      left: var(--page-padding-x, 20px);
+      right: var(--page-padding-x, 20px);
+      bottom: var(--space-4);
+      transform: none;
+      min-width: 0;
+      max-width: none;
+      max-height: calc(100vh - 2 * var(--space-4));
+      overflow-y: auto;
+      z-index: 95;
+    }
+  }
+
+  .filter-panel h3 {
+    font-size: var(--text-h3-size);
+    font-weight: var(--text-h3-weight);
+    color: var(--color-text-subtle);
+    margin-bottom: var(--space-4);
+  }
+
+  .filter-panel__options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+
+  /* Destination's radio list (reference/figma/components/filter-destination.png):
+     one full-width row per option, stacked with no gap of their own — each
+     row's padding is what gives it its height, so the selected row's pill
+     background reads as one continuous block, not a chip in a wrapped grid. */
+  .filter-panel__options--list {
+    flex-direction: column;
+    flex-wrap: nowrap;
+    gap: 0;
+  }
+
+  .filter-option {
+    border: 1px solid var(--color-line-strong);
+    border-radius: var(--radius-pill);
+    background: var(--color-bg);
+    color: var(--color-text);
+    padding: var(--space-2) var(--space-4);
+    min-height: 44px;
+  }
+
+  .filter-option[aria-pressed='true'] {
+    background: var(--color-accent-strong);
+    border-color: var(--color-accent-strong);
+    color: var(--color-on-accent);
+  }
+
+  .filter-option--radio {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    width: 100%;
+    justify-content: flex-start;
+    border: none;
+    background: none;
+    color: var(--color-text);
+  }
+
+  .filter-option--radio[aria-pressed='true'] {
+    background: var(--color-accent-soft);
+    color: var(--color-accent-text);
+  }
+
+  .filter-option__dot {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: 1px solid var(--color-accent);
+    flex-shrink: 0;
+  }
+
+  .filter-option--radio[aria-pressed='true'] .filter-option__dot {
+    background: var(--color-accent);
+    border-color: var(--color-accent);
+  }
+
+  .filter-option--round {
+    min-width: 44px;
+  }
+
+  .filter-panel__price-labels {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: var(--space-4);
+  }
+
+  .filter-panel__price-word {
+    color: var(--color-text-subtle);
+  }
+
+  .filter-panel__price-labels [data-price-label] {
+    color: var(--color-text);
+    font-weight: var(--weight-semibold);
+  }
+
+  .price-slider {
+    position: relative;
+    height: 32px;
+  }
+
+  /* Static full-width base (plain gray) plus a colored fill between the two
+     thumbs on top of it (see filter-price.png) — both sit *under* the two
+     range inputs in paint order, and each input's own native track is made
+     transparent below, so these two show through instead of being covered
+     by it. */
+  .price-slider__track {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: var(--color-line-strong);
+    border-radius: var(--radius-pill);
+    transform: translateY(-50%);
+    pointer-events: none;
+  }
+
+  .price-slider__fill {
+    position: absolute;
+    top: 50%;
+    height: 4px;
+    background: var(--color-accent);
+    border-radius: var(--radius-pill);
+    transform: translateY(-50%);
+    pointer-events: none;
+  }
+
+  .price-slider__input {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    margin: 0;
+    background: none;
+    pointer-events: none;
+    appearance: none;
+  }
+
+  .price-slider__input::-webkit-slider-thumb {
+    appearance: none;
+    pointer-events: auto;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--color-accent);
+    cursor: pointer;
+    margin-top: -7px;
+  }
+
+  .price-slider__input::-moz-range-thumb {
+    pointer-events: auto;
+    width: 18px;
+    height: 18px;
+    border: none;
+    border-radius: 50%;
+    background: var(--color-accent);
+    cursor: pointer;
+  }
+
+  .price-slider__input::-webkit-slider-runnable-track {
+    height: 4px;
+    background: transparent;
+  }
+
+  .price-slider__input::-moz-range-track {
+    height: 4px;
+    background: transparent;
+  }
+
+  @media (max-width: 767.98px) {
+    /* The header below the wrapped mobile search row already has its own
+       20px bottom padding; without this, that 20px plus the row's own 12px
+       top padding stacks into a 32px gap instead of the 12px from Figma. */
+    .filter-bar {
+      margin-top: -20px;
+    }
+  }
+
+  @media (min-width: 768px) {
+    .filter-bar__row {
+      flex-wrap: wrap;
+      overflow: visible;
+      /* Figma gives the chip row more room above (between it and the
+         header) than below (between it and the cards) on desktop — the
+         base padding-block above is the smaller, mobile-correct value. */
+      padding-top: var(--space-4);
+    }
+  }
+</style>

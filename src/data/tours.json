@@ -1,0 +1,1222 @@
+{
+  "tours": [
+    {
+      "id": 1,
+      "slug": "mountain-trekking-georgia",
+      "imageFolder": "01-mountain-trekking-georgia",
+      "name": "Mountain Trekking, 6 Days",
+      "country": "Georgia",
+      "region": "Svaneti",
+      "place": "Georgia · Svaneti",
+      "type": "Trekking",
+      "durationDays": 6,
+      "difficulty": "Challenging",
+      "maxGroup": 8,
+      "minGroup": 3,
+      "priceAdult": 1240,
+      "priceChild": 620,
+      "meta": "Trekking · 6 days · Challenging · Up to 8 people per group",
+      "about": [
+        "A six-day route through highland Svaneti — one of Georgia's most remote and scenic regions. We walk through alpine meadows, medieval tower villages, and mountain passes with views of the Ushba and Shkhara glaciers.",
+        "The group is small, and the route is built for people who already have multi-day trekking experience. We stay in guesthouses and a tent camp, with all meals included."
+      ],
+      "departures": [
+        {
+          "start": "2027-09-28",
+          "end": "2027-10-03",
+          "label": "Sep 28 – Oct 3, 2027",
+          "total": 8,
+          "booked": 5,
+          "spotsLeft": 3,
+          "chip": "3 spots left"
+        },
+        {
+          "start": "2027-11-14",
+          "end": "2027-11-19",
+          "label": "Nov 14 – 19, 2027",
+          "total": 8,
+          "booked": 3,
+          "spotsLeft": 5,
+          "chip": "5 spots"
+        },
+        {
+          "start": "2027-12-05",
+          "end": "2027-12-10",
+          "label": "Dec 5 – 10, 2027",
+          "total": 8,
+          "booked": 0,
+          "spotsLeft": 8,
+          "chip": "8 spots"
+        }
+      ],
+      "itinerary": [
+        {
+          "day": 1,
+          "title": "Arrival in Mestia",
+          "description": "Transfer from Tbilisi, check in at a guesthouse, an acclimatization walk around town, and a briefing with your guide."
+        },
+        {
+          "day": 2,
+          "title": "Mestia — Zhabeshi",
+          "description": "The route begins across alpine meadows, past the first tower village, with an overnight stay at a guesthouse."
+        },
+        {
+          "day": 3,
+          "title": "Zhabeshi — Adishi",
+          "description": "Cross a pass with views of the Chalaadi glacier, ford a river, and camp at the foot of the mountains."
+        },
+        {
+          "day": 4,
+          "title": "Adishi — Ushguli",
+          "description": "Europe's highest inhabited settlement, with views of Shkhara — Georgia's tallest peak."
+        },
+        {
+          "day": 5,
+          "title": "Side trip day",
+          "description": "An easier day for rest and acclimatization, with a walk to a glacier viewpoint."
+        },
+        {
+          "day": 6,
+          "title": "Ushguli — Mestia — Tbilisi",
+          "description": "Transfer back, free time, and a flight home the next day."
+        }
+      ],
+      "included": [
+        "Accommodation (guesthouses and camping)",
+        "All meals on the route",
+        "Guide and porters",
+        "Tbilisi — Svaneti — Tbilisi transfer",
+        "Permits and group insurance"
+      ],
+      "notIncluded": [
+        "Flights to Tbilisi",
+        "Personal gear",
+        "Tips for the guide",
+        "Extra drinks"
+      ],
+      "similar": [
+        "inca-trail-machu-picchu",
+        "annapurna-base-camp"
+      ]
+    },
+    {
+      "id": 2,
+      "slug": "tuscan-cuisine-vineyards",
+      "imageFolder": "02-tuscan-cuisine-vineyards",
+      "name": "Tuscan Cuisine & Vineyards",
+      "country": "Italy",
+      "region": "Tuscany",
+      "place": "Italy · Tuscany",
+      "type": "Culinary",
+      "durationDays": 5,
+      "difficulty": "Easy",
+      "maxGroup": 10,
+      "minGroup": 3,
+      "priceAdult": 980,
+      "priceChild": 490,
+      "meta": "Culinary · 5 days · Easy · Up to 10 people per group",
+      "about": [
+        "A five-day food and wine journey through the Tuscan hills, from the Chianti vineyards to the farmhouses of the Val d'Orcia. The days are slow: short drives, long lunches, and tastings with the families who make the wine and olive oil.",
+        "The group is small and the pace is easy, so no hiking experience is needed. We stay in family-run farmhouses, cook together one afternoon, and all meals are included."
+      ],
+      "departures": [
+        {
+          "start": "2027-10-26",
+          "end": "2027-10-30",
+          "label": "Oct 26 – 30, 2027",
+          "total": 10,
+          "booked": 6,
+          "spotsLeft": 4,
+          "chip": "4 spots"
+        },
+        {
+          "start": "2027-11-16",
+          "end": "2027-11-20",
+          "label": "Nov 16 – 20, 2027",
+          "total": 10,
+          "booked": 2,
+          "spotsLeft": 8,
+          "chip": "8 spots"
+        },
+        {
+          "start": "2028-04-12",
+          "end": "2028-04-16",
+          "label": "Apr 12 – 16, 2028",
+          "total": 10,
+          "booked": 0,
+          "spotsLeft": 10,
+          "chip": "10 spots"
+        }
+      ],
+      "itinerary": [
+        {
+          "day": 1,
+          "title": "Arrival in Florence — Siena",
+          "description": "Meet in Florence, drive to Siena, check in at a farmhouse, and enjoy a welcome dinner of Tuscan classics."
+        },
+        {
+          "day": 2,
+          "title": "Chianti vineyards",
+          "description": "A morning walk between the vines, a cellar visit and tasting at a family winery, then a long lunch with local cheeses and cured meats."
+        },
+        {
+          "day": 3,
+          "title": "Val d'Orcia — cooking class",
+          "description": "Drive through the Val d'Orcia hills to a farmhouse kitchen, where you make fresh pasta and a Tuscan dessert and eat what you cook."
+        },
+        {
+          "day": 4,
+          "title": "San Gimignano — Montalcino",
+          "description": "Explore the medieval towers of San Gimignano, then taste Brunello in Montalcino and visit an olive oil producer on the way back."
+        },
+        {
+          "day": 5,
+          "title": "Market and departure",
+          "description": "Shop at a local market for olive oil, honey, and pecorino, have a last breakfast together, and transfer back to Florence."
+        }
+      ],
+      "included": [
+        "Accommodation in family-run farmhouses",
+        "All meals as described in the itinerary",
+        "Wine tastings and the cooking class",
+        "Transfers from Florence and back",
+        "Local guide and group insurance"
+      ],
+      "notIncluded": [
+        "Flights to Florence",
+        "Personal purchases (wine, oil, souvenirs)",
+        "Tips for the guide",
+        "Extra drinks"
+      ],
+      "similar": [
+        "douro-valley-wine-cuisine",
+        "mezcal-markets-street-food"
+      ]
+    },
+    {
+      "id": 3,
+      "slug": "medina-atlas-mountains",
+      "imageFolder": "03-medina-atlas-mountains",
+      "name": "From the Medina to the Atlas Mountains",
+      "country": "Morocco",
+      "region": "Atlas",
+      "place": "Morocco · Atlas",
+      "type": "Cultural Immersion",
+      "durationDays": 7,
+      "difficulty": "Moderate",
+      "maxGroup": 10,
+      "minGroup": 3,
+      "priceAdult": 890,
+      "priceChild": 445,
+      "meta": "Cultural Immersion · 7 days · Moderate · Up to 10 people per group",
+      "about": [
+        "A seven-day route from the markets of Marrakech over the High Atlas to the edge of the Sahara. We wander through medinas, cross the Tizi n'Tichka pass, walk in the Dadès valley, and spend two nights in a desert camp.",
+        "The days are varied, with some long drives and easy walks of two to three hours. We stay in riads, small guesthouses, and a desert camp, and all breakfasts and dinners are included."
+      ],
+      "departures": [
+        {
+          "start": "2027-11-01",
+          "end": "2027-11-07",
+          "label": "Nov 1 – 7, 2027",
+          "total": 10,
+          "booked": 8,
+          "spotsLeft": 2,
+          "chip": "2 spots left"
+        },
+        {
+          "start": "2027-11-22",
+          "end": "2027-11-28",
+          "label": "Nov 22 – 28, 2027",
+          "total": 10,
+          "booked": 4,
+          "spotsLeft": 6,
+          "chip": "6 spots"
+        },
+        {
+          "start": "2028-03-07",
+          "end": "2028-03-13",
+          "label": "Mar 7 – 13, 2028",
+          "total": 10,
+          "booked": 0,
+          "spotsLeft": 10,
+          "chip": "10 spots"
+        }
+      ],
+      "itinerary": [
+        {
+          "day": 1,
+          "title": "Arrival in Marrakech",
+          "description": "Meet at your hotel, settle into a riad in the medina, and finish the day with dinner on a rooftop terrace."
+        },
+        {
+          "day": 2,
+          "title": "Marrakech medina",
+          "description": "A guided walk through the souks, the Bahia Palace, and Jemaa el-Fnaa square, with time for mint tea and shopping."
+        },
+        {
+          "day": 3,
+          "title": "Over the High Atlas",
+          "description": "Drive across the Tizi n'Tichka pass, stop in a Berber village for a short walk and tea, and spend the night near Aït Benhaddou."
+        },
+        {
+          "day": 4,
+          "title": "Aït Benhaddou — Dadès Gorge",
+          "description": "Explore the UNESCO-listed ksar in the morning, then drive through the Valley of Roses to the Dadès Gorge for an evening walk."
+        },
+        {
+          "day": 5,
+          "title": "Dadès — Merzouga",
+          "description": "Walk in the Todra Gorge, drive to the edge of the Sahara, and ride camels at sunset into your desert camp."
+        },
+        {
+          "day": 6,
+          "title": "Desert camp",
+          "description": "Watch the sunrise from the dunes, visit a nomad family, and spend a second night under the stars."
+        },
+        {
+          "day": 7,
+          "title": "Merzouga — Marrakech",
+          "description": "A long scenic drive back to Marrakech, with stops along the way and a farewell dinner in the evening."
+        }
+      ],
+      "included": [
+        "Riads, guesthouses, and desert camp",
+        "Breakfasts and dinners",
+        "Private minibus and driver",
+        "Local guide and camel ride",
+        "Entrance fees to sites on the route"
+      ],
+      "notIncluded": [
+        "Flights to Marrakech",
+        "Lunches",
+        "Tips for the guide and driver",
+        "Personal expenses"
+      ],
+      "similar": [
+        "desert-ancient-cities",
+        "traditional-crafts-temples"
+      ]
+    },
+    {
+      "id": 4,
+      "slug": "inca-trail-machu-picchu",
+      "imageFolder": "04-inca-trail-machu-picchu",
+      "name": "The Inca Trail to Machu Picchu",
+      "country": "Peru",
+      "region": "Cusco",
+      "place": "Peru · Cusco",
+      "type": "Trekking",
+      "durationDays": 5,
+      "difficulty": "Challenging",
+      "maxGroup": 8,
+      "minGroup": 3,
+      "priceAdult": 1450,
+      "priceChild": 725,
+      "meta": "Trekking · 5 days · Challenging · Up to 8 people per group",
+      "about": [
+        "A five-day route to Machu Picchu on the classic Inca Trail, through cloud forest, high passes, and stone-paved Inca paths. We cross Dead Woman's Pass at 4,215 m and reach the Sun Gate at sunrise.",
+        "The group is small, and you should be comfortable walking five to eight hours a day at altitude. We camp on the trail with a guide, a cook, and porters, and the first day in Cusco is for acclimatization."
+      ],
+      "departures": [
+        {
+          "start": "2028-03-14",
+          "end": "2028-03-18",
+          "label": "Mar 14 – 18, 2028",
+          "total": 8,
+          "booked": 7,
+          "spotsLeft": 1,
+          "chip": "1 spot left"
+        },
+        {
+          "start": "2028-04-11",
+          "end": "2028-04-15",
+          "label": "Apr 11 – 15, 2028",
+          "total": 8,
+          "booked": 4,
+          "spotsLeft": 4,
+          "chip": "4 spots"
+        },
+        {
+          "start": "2028-05-09",
+          "end": "2028-05-13",
+          "label": "May 9 – 13, 2028",
+          "total": 8,
+          "booked": 1,
+          "spotsLeft": 7,
+          "chip": "7 spots"
+        }
+      ],
+      "itinerary": [
+        {
+          "day": 1,
+          "title": "Cusco — acclimatization",
+          "description": "Arrive in Cusco at 3,400 m, rest, and take an easy walk through the old town and the Sacsayhuamán ruins with your guide."
+        },
+        {
+          "day": 2,
+          "title": "Km 82 — Wayllabamba",
+          "description": "Drive to the trailhead, cross the Cusichaca valley, and climb gently to the first campsite, about 11 km."
+        },
+        {
+          "day": 3,
+          "title": "Dead Woman's Pass",
+          "description": "The hardest day: a long climb to Dead Woman's Pass at 4,215 m, then a steep descent to the Pacaymayo valley."
+        },
+        {
+          "day": 4,
+          "title": "Cloud forest — Wiñay Wayna",
+          "description": "Cross the Runkurakay pass, walk through cloud forest past Sayacmarca and Phuyupatamarca, and camp near Wiñay Wayna."
+        },
+        {
+          "day": 5,
+          "title": "Machu Picchu at sunrise",
+          "description": "Wake before dawn, walk to the Sun Gate for the first view of Machu Picchu, then tour the site and take the train back."
+        }
+      ],
+      "included": [
+        "Hotel in Cusco and camping on the trail",
+        "All meals on the trail",
+        "Guide, cook, and porters",
+        "Inca Trail permit and Machu Picchu entrance ticket",
+        "Return train from Aguas Calientes"
+      ],
+      "notIncluded": [
+        "Flights to Cusco",
+        "Personal trekking gear",
+        "Tips for the guide, cook, and porters",
+        "Extra excursions in Cusco"
+      ],
+      "similar": [
+        "mountain-trekking-georgia",
+        "annapurna-base-camp"
+      ]
+    },
+    {
+      "id": 5,
+      "slug": "traditional-crafts-temples",
+      "imageFolder": "05-traditional-crafts-temples",
+      "name": "Traditional Crafts & Temples",
+      "country": "Japan",
+      "region": "Kyoto",
+      "place": "Japan · Kyoto",
+      "type": "Cultural Immersion",
+      "durationDays": 8,
+      "difficulty": "Easy",
+      "maxGroup": 10,
+      "minGroup": 3,
+      "priceAdult": 1680,
+      "priceChild": 840,
+      "meta": "Cultural Immersion · 8 days · Easy · Up to 10 people per group",
+      "about": [
+        "An eight-day journey through Japan's craft traditions, from the workshops of old Tokyo to the temples of Kyoto and the gold-leaf studios of Kanazawa. You try the crafts yourself and meet the people who still practice them.",
+        "The pace is easy: short walks, trains between cities, and time to rest every day. We stay in comfortable hotels and one traditional ryokan, and breakfasts are included."
+      ],
+      "departures": [
+        {
+          "start": "2027-11-07",
+          "end": "2027-11-14",
+          "label": "Nov 7 – 14, 2027",
+          "total": 10,
+          "booked": 9,
+          "spotsLeft": 1,
+          "chip": "1 spot left"
+        },
+        {
+          "start": "2027-11-21",
+          "end": "2027-11-28",
+          "label": "Nov 21 – 28, 2027",
+          "total": 10,
+          "booked": 5,
+          "spotsLeft": 5,
+          "chip": "5 spots"
+        },
+        {
+          "start": "2028-03-27",
+          "end": "2028-04-03",
+          "label": "Mar 27 – Apr 3, 2028",
+          "total": 10,
+          "booked": 2,
+          "spotsLeft": 8,
+          "chip": "8 spots"
+        }
+      ],
+      "itinerary": [
+        {
+          "day": 1,
+          "title": "Arrival in Tokyo",
+          "description": "Meet at your hotel, take a short orientation walk around the neighborhood, and share a welcome dinner."
+        },
+        {
+          "day": 2,
+          "title": "Asakusa — Tokyo crafts",
+          "description": "Visit Sensō-ji temple, then try a traditional craft in an Asakusa workshop, such as indigo dyeing or woodblock printing."
+        },
+        {
+          "day": 3,
+          "title": "Tokyo — Kyoto by shinkansen",
+          "description": "Take the bullet train to Kyoto in about two hours and a quarter, check in, and stroll through the lantern-lit streets of Gion."
+        },
+        {
+          "day": 4,
+          "title": "Temples of Kyoto",
+          "description": "Walk through the thousand torii gates of Fushimi Inari, then visit Kiyomizu-dera and the Golden Pavilion, Kinkaku-ji."
+        },
+        {
+          "day": 5,
+          "title": "Arashiyama — tea ceremony",
+          "description": "Walk through the Arashiyama bamboo grove in the morning, then learn the basics of a tea ceremony from a tea master."
+        },
+        {
+          "day": 6,
+          "title": "Nara",
+          "description": "A day trip to Nara to see Tōdai-ji and its giant Buddha, and to walk among the deer in Nara Park."
+        },
+        {
+          "day": 7,
+          "title": "Kyoto — Kanazawa",
+          "description": "Take the train to Kanazawa, visit Kenroku-en garden, and try gold-leaf craft, the city's specialty, in a workshop. Tonight you stay in a ryokan."
+        },
+        {
+          "day": 8,
+          "title": "Departure",
+          "description": "Have a last breakfast together and transfer to the station for your onward journey."
+        }
+      ],
+      "included": [
+        "Hotels and one night in a ryokan",
+        "Breakfasts and two group dinners",
+        "Shinkansen and local train tickets",
+        "Craft workshops and tea ceremony",
+        "Local guide"
+      ],
+      "notIncluded": [
+        "International flights",
+        "Lunches and other dinners",
+        "Tips for the guide",
+        "Personal expenses"
+      ],
+      "similar": [
+        "medina-atlas-mountains",
+        "desert-ancient-cities"
+      ]
+    },
+    {
+      "id": 6,
+      "slug": "douro-valley-wine-cuisine",
+      "imageFolder": "06-douro-valley-wine-cuisine",
+      "name": "Wine & Cuisine of the Douro Valley",
+      "country": "Portugal",
+      "region": "Douro Valley",
+      "place": "Portugal · Douro Valley",
+      "type": "Culinary",
+      "durationDays": 5,
+      "difficulty": "Easy",
+      "maxGroup": 10,
+      "minGroup": 3,
+      "priceAdult": 1050,
+      "priceChild": 525,
+      "meta": "Culinary · 5 days · Easy · Up to 10 people per group",
+      "about": [
+        "Five days in Portugal's oldest wine region, from the lively streets of Porto to the terraced vineyards of the Douro Valley. We taste port and table wines at family estates, ride the scenic river train, and cruise between the terraces.",
+        "The pace is relaxed, with short transfers and plenty of time at the table. We stay in a boutique hotel in Porto and on a wine estate in the valley, and all meals are included."
+      ],
+      "departures": [
+        {
+          "start": "2027-10-26",
+          "end": "2027-10-30",
+          "label": "Oct 26 – 30, 2027",
+          "total": 10,
+          "booked": 4,
+          "spotsLeft": 6,
+          "chip": "6 spots"
+        },
+        {
+          "start": "2027-11-09",
+          "end": "2027-11-13",
+          "label": "Nov 9 – 13, 2027",
+          "total": 10,
+          "booked": 7,
+          "spotsLeft": 3,
+          "chip": "3 spots left"
+        },
+        {
+          "start": "2028-03-22",
+          "end": "2028-03-26",
+          "label": "Mar 22 – 26, 2028",
+          "total": 10,
+          "booked": 0,
+          "spotsLeft": 10,
+          "chip": "10 spots"
+        }
+      ],
+      "itinerary": [
+        {
+          "day": 1,
+          "title": "Arrival in Porto",
+          "description": "Meet in Porto, walk down to the Ribeira waterfront, and visit a port wine lodge in Vila Nova de Gaia for a first tasting."
+        },
+        {
+          "day": 2,
+          "title": "Douro Valley by train",
+          "description": "Ride the scenic Douro Line upriver, then drive to your wine estate for dinner among the vineyards."
+        },
+        {
+          "day": 3,
+          "title": "Tasting at a quinta",
+          "description": "Walk through the terraced vineyards with the winemaker, then taste estate wines over a long lunch of regional dishes."
+        },
+        {
+          "day": 4,
+          "title": "Douro river cruise",
+          "description": "Cruise along the river through the terraced valley, stop in a village for lunch, and return to the estate by road."
+        },
+        {
+          "day": 5,
+          "title": "Porto market and departure",
+          "description": "Visit the Bolhão market for cheese, cured meats, and pastries, then have a farewell lunch before departing."
+        }
+      ],
+      "included": [
+        "Boutique hotel in Porto and a wine estate",
+        "All meals as described in the itinerary",
+        "Tastings at wineries and port lodges",
+        "Douro train ticket and river cruise",
+        "Local guide and transfers"
+      ],
+      "notIncluded": [
+        "Flights to Porto",
+        "Wine and food bought for yourself",
+        "Tips for the guide",
+        "Extra drinks"
+      ],
+      "similar": [
+        "tuscan-cuisine-vineyards",
+        "mezcal-markets-street-food"
+      ]
+    },
+    {
+      "id": 7,
+      "slug": "annapurna-base-camp",
+      "imageFolder": "07-annapurna-base-camp",
+      "name": "Annapurna Base Camp",
+      "country": "Nepal",
+      "region": "Annapurna",
+      "place": "Nepal · Annapurna",
+      "type": "Trekking",
+      "durationDays": 10,
+      "difficulty": "Challenging",
+      "maxGroup": 8,
+      "minGroup": 3,
+      "priceAdult": 1320,
+      "priceChild": 660,
+      "meta": "Trekking · 10 days · Challenging · Up to 8 people per group",
+      "about": [
+        "A ten-day trek to the foot of the Annapurna massif, a classic Himalayan route that climbs from rhododendron forest to the glacier basin at 4,130 m. We walk between Gurung villages and finish with views of Annapurna I, Machapuchare, and Hiunchuli.",
+        "The trek is demanding but suits strong walkers with no technical experience, with five to seven hours on the trail each day. We stay in simple teahouses, a guide and a porter carry the load, and the trek ends with a hot-spring soak at Jhinu Danda."
+      ],
+      "departures": [
+        {
+          "start": "2027-10-31",
+          "end": "2027-11-09",
+          "label": "Oct 31 – Nov 9, 2027",
+          "total": 8,
+          "booked": 6,
+          "spotsLeft": 2,
+          "chip": "2 spots left"
+        },
+        {
+          "start": "2027-11-14",
+          "end": "2027-11-23",
+          "label": "Nov 14 – 23, 2027",
+          "total": 8,
+          "booked": 3,
+          "spotsLeft": 5,
+          "chip": "5 spots"
+        },
+        {
+          "start": "2028-03-13",
+          "end": "2028-03-22",
+          "label": "Mar 13 – 22, 2028",
+          "total": 8,
+          "booked": 0,
+          "spotsLeft": 8,
+          "chip": "8 spots"
+        }
+      ],
+      "itinerary": [
+        {
+          "day": 1,
+          "title": "Kathmandu — Pokhara",
+          "description": "Fly from Kathmandu to Pokhara, meet your guide, and enjoy a lakeside evening while the team checks your gear."
+        },
+        {
+          "day": 2,
+          "title": "Pokhara — Nayapul — Ghandruk",
+          "description": "Drive to Nayapul and begin the trek, climbing stone steps along the Modi Khola to the Gurung village of Ghandruk."
+        },
+        {
+          "day": 3,
+          "title": "Ghandruk — Chhomrong",
+          "description": "Cross forested ridges and a suspension bridge to Chhomrong, the last big village on the route, with views of Annapurna South."
+        },
+        {
+          "day": 4,
+          "title": "Chhomrong — Dovan",
+          "description": "Descend to the river and climb through bamboo and rhododendron forest to the small settlement of Dovan."
+        },
+        {
+          "day": 5,
+          "title": "Dovan — Machapuchare Base Camp",
+          "description": "Climb through Himalaya and Deurali into the high valley, where the fishtail peak of Machapuchare rises above your camp."
+        },
+        {
+          "day": 6,
+          "title": "Annapurna Base Camp",
+          "description": "A short walk up to the base camp at 4,130 m, with the whole amphitheater of peaks around you and the afternoon to enjoy it."
+        },
+        {
+          "day": 7,
+          "title": "Annapurna Base Camp — Bamboo",
+          "description": "Watch the sunrise on the peaks, then begin the long descent through the valley to Bamboo."
+        },
+        {
+          "day": 8,
+          "title": "Bamboo — Jhinu Danda",
+          "description": "Walk down through Chhomrong to Jhinu Danda and soak your legs in the natural hot springs by the river."
+        },
+        {
+          "day": 9,
+          "title": "Jhinu Danda — Nayapul — Pokhara",
+          "description": "Walk out to Nayapul, then drive back to Pokhara for a hot shower and a celebration dinner."
+        },
+        {
+          "day": 10,
+          "title": "Pokhara — Kathmandu",
+          "description": "Take a morning flight back to Kathmandu, with time to rest before your onward journey."
+        }
+      ],
+      "included": [
+        "Hotel in Pokhara and teahouses on the trek",
+        "All meals on the trek",
+        "Guide and porter",
+        "TIMS card and ACAP permit",
+        "Flights Kathmandu — Pokhara — Kathmandu"
+      ],
+      "notIncluded": [
+        "International flights to Kathmandu",
+        "Personal gear and sleeping bag",
+        "Tips for the guide and porter",
+        "Extra drinks, hot showers, and device charging"
+      ],
+      "similar": [
+        "mountain-trekking-georgia",
+        "inca-trail-machu-picchu"
+      ]
+    },
+    {
+      "id": 8,
+      "slug": "mezcal-markets-street-food",
+      "imageFolder": "08-mezcal-markets-street-food",
+      "name": "Mezcal, Markets & Street Food",
+      "country": "Mexico",
+      "region": "Oaxaca",
+      "place": "Mexico · Oaxaca",
+      "type": "Culinary",
+      "durationDays": 5,
+      "difficulty": "Easy",
+      "maxGroup": 12,
+      "minGroup": 3,
+      "priceAdult": 790,
+      "priceChild": 395,
+      "meta": "Culinary · 5 days · Easy · Up to 12 people per group",
+      "about": [
+        "A five-day food trip through Oaxaca's markets, mezcal distilleries, and village kitchens. We eat our way from street-corner tlayudas to a hands-on mole class, and learn how agave becomes mezcal.",
+        "The pace is easy and the walks are short. We stay in a small hotel in Oaxaca's historic center, and most meals are included, though you will want to leave room for the market."
+      ],
+      "departures": [
+        {
+          "start": "2027-10-28",
+          "end": "2027-11-01",
+          "label": "Oct 28 – Nov 1, 2027",
+          "total": 12,
+          "booked": 12,
+          "spotsLeft": 0,
+          "chip": "Full"
+        },
+        {
+          "start": "2027-11-18",
+          "end": "2027-11-22",
+          "label": "Nov 18 – 22, 2027",
+          "total": 12,
+          "booked": 5,
+          "spotsLeft": 7,
+          "chip": "7 spots"
+        },
+        {
+          "start": "2028-01-20",
+          "end": "2028-01-24",
+          "label": "Jan 20 – 24, 2028",
+          "total": 12,
+          "booked": 1,
+          "spotsLeft": 11,
+          "chip": "11 spots"
+        }
+      ],
+      "itinerary": [
+        {
+          "day": 1,
+          "title": "Arrival in Oaxaca",
+          "description": "Check in at your hotel in the historic center, walk to the Zócalo, and start with a street-food dinner of tlayudas and local snacks."
+        },
+        {
+          "day": 2,
+          "title": "Santiago Matatlán — mezcal",
+          "description": "Visit a family palenque in Santiago Matatlán, the \"world capital of mezcal\", see the agave roasted and distilled, and taste the results."
+        },
+        {
+          "day": 3,
+          "title": "Teotitlán del Valle",
+          "description": "Meet Zapotec weavers in Teotitlán del Valle, learn how they dye wool with natural pigments, and have lunch in a family home."
+        },
+        {
+          "day": 4,
+          "title": "Hierve el Agua — mole class",
+          "description": "Walk and swim at the petrified waterfalls of Hierve el Agua, then cook a traditional mole with a local chef in the afternoon."
+        },
+        {
+          "day": 5,
+          "title": "Mitla — departure",
+          "description": "Explore the Zapotec ruins of Mitla in the morning, then transfer to the airport or bus station."
+        }
+      ],
+      "included": [
+        "Hotel in Oaxaca's historic center",
+        "Breakfasts and most lunches and dinners",
+        "Mezcal tastings and the mole class",
+        "Transport between villages",
+        "Local guide and group insurance"
+      ],
+      "notIncluded": [
+        "Flights to Oaxaca",
+        "Street food outside the program",
+        "Tips for the guide",
+        "Mezcal and crafts you buy"
+      ],
+      "similar": [
+        "tuscan-cuisine-vineyards",
+        "douro-valley-wine-cuisine"
+      ]
+    },
+    {
+      "id": 9,
+      "slug": "islands-old-coastal-towns",
+      "imageFolder": "09-islands-old-coastal-towns",
+      "name": "Islands & Old Coastal Towns",
+      "country": "Croatia",
+      "region": "Dalmatia",
+      "place": "Croatia · Dalmatia",
+      "type": "Nature",
+      "durationDays": 7,
+      "difficulty": "Moderate",
+      "maxGroup": 12,
+      "minGroup": 3,
+      "priceAdult": 1180,
+      "priceChild": 590,
+      "meta": "Nature · 7 days · Moderate · Up to 12 people per group",
+      "about": [
+        "A seven-day journey along Croatia's Dalmatian coast, linking old stone towns, island coves, and a national park. We move between Split, Hvar, Korčula, and Dubrovnik by ferry, with plenty of time for swimming, short hikes, and seafood.",
+        "The days are active but not hard, with a few hours of walking and one day of sea kayaking. We stay in small hotels and guesthouses in old towns, and breakfasts are included."
+      ],
+      "departures": [
+        {
+          "start": "2028-04-24",
+          "end": "2028-04-30",
+          "label": "Apr 24 – 30, 2028",
+          "total": 12,
+          "booked": 9,
+          "spotsLeft": 3,
+          "chip": "3 spots left"
+        },
+        {
+          "start": "2028-05-15",
+          "end": "2028-05-21",
+          "label": "May 15 – 21, 2028",
+          "total": 12,
+          "booked": 4,
+          "spotsLeft": 8,
+          "chip": "8 spots"
+        },
+        {
+          "start": "2028-06-05",
+          "end": "2028-06-11",
+          "label": "Jun 5 – 11, 2028",
+          "total": 12,
+          "booked": 0,
+          "spotsLeft": 12,
+          "chip": "12 spots"
+        }
+      ],
+      "itinerary": [
+        {
+          "day": 1,
+          "title": "Arrival in Split",
+          "description": "Meet in Split, explore Diocletian's Palace with your guide, and have dinner on the seafront promenade."
+        },
+        {
+          "day": 2,
+          "title": "Krka National Park",
+          "description": "Walk the boardwalks past the Skradinski Buk waterfalls and take a boat to the island monastery of Visovac."
+        },
+        {
+          "day": 3,
+          "title": "Split — Hvar",
+          "description": "Take the morning ferry to Hvar, check in at your guesthouse in the old town, and climb to the fortress for sunset."
+        },
+        {
+          "day": 4,
+          "title": "Hvar coast",
+          "description": "Paddle by sea kayak along the coast to quiet coves, stop for a swim and lunch, and return to Hvar town in the afternoon."
+        },
+        {
+          "day": 5,
+          "title": "Hvar — Korčula",
+          "description": "Take a ferry to Korčula, walk the walls of the old town, and taste the local white wine made from the Pošip grape."
+        },
+        {
+          "day": 6,
+          "title": "Korčula — Dubrovnik",
+          "description": "Cross by boat to Dubrovnik, walk the city walls in the late afternoon light, and have dinner in the old town."
+        },
+        {
+          "day": 7,
+          "title": "Elaphiti Islands",
+          "description": "Take a boat to the Elaphiti Islands, walk between villages on Šipan or Lopud, swim, and share a farewell seafood lunch."
+        }
+      ],
+      "included": [
+        "Small hotels and guesthouses",
+        "Breakfasts and two group dinners",
+        "All ferries and boat transfers",
+        "Park entrance and kayak equipment",
+        "Local guide"
+      ],
+      "notIncluded": [
+        "Flights to Split and from Dubrovnik",
+        "Lunches and other dinners",
+        "Tips for the guide",
+        "Personal expenses"
+      ],
+      "similar": [
+        "fjords-mountain-trails",
+        "mountain-villages-river-delta"
+      ]
+    },
+    {
+      "id": 10,
+      "slug": "desert-ancient-cities",
+      "imageFolder": "10-desert-ancient-cities",
+      "name": "Desert & Ancient Cities",
+      "country": "Jordan",
+      "region": "Wadi Rum",
+      "place": "Jordan · Wadi Rum",
+      "type": "Cultural Immersion",
+      "durationDays": 6,
+      "difficulty": "Moderate",
+      "maxGroup": 10,
+      "minGroup": 3,
+      "priceAdult": 1390,
+      "priceChild": 695,
+      "meta": "Cultural Immersion · 6 days · Moderate · Up to 10 people per group",
+      "about": [
+        "A six-day journey through Jordan's most famous places: the Roman ruins of Jerash, the rock-cut city of Petra, the red desert of Wadi Rum, and a float in the Dead Sea. We hike, ride in a 4x4, and sleep one night under the desert stars.",
+        "The route suits anyone in good health, with up to six hours of walking in Petra and some steps to climb. We stay in comfortable hotels and one Bedouin camp, and all breakfasts and most dinners are included."
+      ],
+      "departures": [
+        {
+          "start": "2027-10-25",
+          "end": "2027-10-30",
+          "label": "Oct 25 – 30, 2027",
+          "total": 10,
+          "booked": 8,
+          "spotsLeft": 2,
+          "chip": "2 spots left"
+        },
+        {
+          "start": "2027-11-15",
+          "end": "2027-11-20",
+          "label": "Nov 15 – 20, 2027",
+          "total": 10,
+          "booked": 3,
+          "spotsLeft": 7,
+          "chip": "7 spots"
+        },
+        {
+          "start": "2028-03-06",
+          "end": "2028-03-11",
+          "label": "Mar 6 – 11, 2028",
+          "total": 10,
+          "booked": 0,
+          "spotsLeft": 10,
+          "chip": "10 spots"
+        }
+      ],
+      "itinerary": [
+        {
+          "day": 1,
+          "title": "Arrival in Amman",
+          "description": "Meet at your hotel, take a short walk through the downtown souks, and share a welcome dinner of local mezze."
+        },
+        {
+          "day": 2,
+          "title": "Amman — Jerash — Petra",
+          "description": "Visit the Roman ruins of Jerash, then drive south along the King's Highway to Petra."
+        },
+        {
+          "day": 3,
+          "title": "Petra — the Siq",
+          "description": "Walk through the narrow Siq canyon to the Treasury, then explore the Royal Tombs, the Street of Facades, and the theater."
+        },
+        {
+          "day": 4,
+          "title": "Petra — the Monastery",
+          "description": "Climb about 800 steps to Ad Deir, the Monastery, for a quieter view over the valley, then walk back through the ruins."
+        },
+        {
+          "day": 5,
+          "title": "Wadi Rum",
+          "description": "Drive to Wadi Rum, ride in a 4x4 across the red desert, watch the sunset from the dunes, and sleep in a Bedouin camp."
+        },
+        {
+          "day": 6,
+          "title": "Wadi Rum — Dead Sea",
+          "description": "Drive north to the Dead Sea for a float in the salt water and a mud treatment before the trip ends."
+        }
+      ],
+      "included": [
+        "Hotels and one night in a Bedouin camp",
+        "Breakfasts and most dinners",
+        "Entrance tickets to Petra and Jerash",
+        "Private minibus and 4x4 desert tour",
+        "Local guide"
+      ],
+      "notIncluded": [
+        "Flights to Amman",
+        "Visa fees where required",
+        "Lunches",
+        "Tips for the guide"
+      ],
+      "similar": [
+        "medina-atlas-mountains",
+        "traditional-crafts-temples"
+      ]
+    },
+    {
+      "id": 11,
+      "slug": "fjords-mountain-trails",
+      "imageFolder": "11-fjords-mountain-trails",
+      "name": "Fjords & Mountain Trails",
+      "country": "Norway",
+      "region": "Fjords",
+      "place": "Norway · Fjords",
+      "type": "Nature",
+      "durationDays": 6,
+      "difficulty": "Moderate",
+      "maxGroup": 8,
+      "minGroup": 3,
+      "priceAdult": 1590,
+      "priceChild": 795,
+      "meta": "Nature · 6 days · Moderate · Up to 8 people per group",
+      "about": [
+        "A six-day journey through western Norway's fjord country, from the old wooden wharf of Bergen to the UNESCO-listed Nærøyfjord and the orchards of Hardanger. We travel by train, kayak, and on foot, with mountain trails and waterfalls along the way.",
+        "The route is active but suits anyone used to a full day outdoors, with up to six hours of hiking on the longest day. We stay in small hotels and fjord-side guesthouses, and breakfasts are included."
+      ],
+      "departures": [
+        {
+          "start": "2028-06-12",
+          "end": "2028-06-17",
+          "label": "Jun 12 – 17, 2028",
+          "total": 8,
+          "booked": 6,
+          "spotsLeft": 2,
+          "chip": "2 spots left"
+        },
+        {
+          "start": "2028-07-03",
+          "end": "2028-07-08",
+          "label": "Jul 3 – 8, 2028",
+          "total": 8,
+          "booked": 3,
+          "spotsLeft": 5,
+          "chip": "5 spots"
+        },
+        {
+          "start": "2028-08-14",
+          "end": "2028-08-19",
+          "label": "Aug 14 – 19, 2028",
+          "total": 8,
+          "booked": 0,
+          "spotsLeft": 8,
+          "chip": "8 spots"
+        }
+      ],
+      "itinerary": [
+        {
+          "day": 1,
+          "title": "Arrival in Bergen",
+          "description": "Meet in Bergen, walk along the wooden wharf of Bryggen, and ride the Fløibanen funicular for the view over the city."
+        },
+        {
+          "day": 2,
+          "title": "Bergen — Flåm",
+          "description": "Take the scenic train to Myrdal, then ride the Flåm Railway down the mountainside to the fjord."
+        },
+        {
+          "day": 3,
+          "title": "Nærøyfjord by kayak",
+          "description": "Paddle the narrow, UNESCO-listed Nærøyfjord beneath steep cliffs and waterfalls, with a picnic lunch on the shore."
+        },
+        {
+          "day": 4,
+          "title": "Flåm — Hardangerfjord",
+          "description": "Drive through the mountains to the Hardangerfjord, with stops at the Vøringsfossen waterfall and a fruit farm."
+        },
+        {
+          "day": 5,
+          "title": "Hardanger mountain hike",
+          "description": "A full-day hike on a mountain trail above the fjord, with views over the water and the Folgefonna glacier."
+        },
+        {
+          "day": 6,
+          "title": "Hardanger — Bergen",
+          "description": "Drive back to Bergen, spend free time at the Fish Market, and share a farewell dinner."
+        }
+      ],
+      "included": [
+        "Small hotels and fjord-side guesthouses",
+        "Breakfasts",
+        "Train from Bergen and Flåm Railway tickets",
+        "Guide and kayak equipment",
+        "Transfers on the route"
+      ],
+      "notIncluded": [
+        "Flights to Bergen",
+        "Lunches and dinners",
+        "Tips for the guide",
+        "Personal outdoor gear"
+      ],
+      "similar": [
+        "islands-old-coastal-towns",
+        "mountain-villages-river-delta"
+      ]
+    },
+    {
+      "id": 12,
+      "slug": "mountain-villages-river-delta",
+      "imageFolder": "12-mountain-villages-river-delta",
+      "name": "From Mountain Villages to the River Delta",
+      "country": "Vietnam",
+      "region": "Sapa",
+      "place": "Vietnam · Sapa",
+      "type": "Nature",
+      "durationDays": 8,
+      "difficulty": "Moderate",
+      "maxGroup": 12,
+      "minGroup": 3,
+      "priceAdult": 980,
+      "priceChild": 490,
+      "meta": "Nature · 8 days · Moderate · Up to 12 people per group",
+      "about": [
+        "An eight-day journey across Vietnam, from the terraced mountains around Sapa to the limestone bay of Ha Long and the canals of the Mekong Delta. We walk between hill-tribe villages, sleep in a homestay, and travel by train, boat, and a short flight.",
+        "The walking days are moderate, with four to six hours on village paths. We stay in hotels, a family homestay, and one night on a boat, and breakfasts are included."
+      ],
+      "departures": [
+        {
+          "start": "2027-10-24",
+          "end": "2027-10-31",
+          "label": "Oct 24 – 31, 2027",
+          "total": 12,
+          "booked": 10,
+          "spotsLeft": 2,
+          "chip": "2 spots left"
+        },
+        {
+          "start": "2027-11-14",
+          "end": "2027-11-21",
+          "label": "Nov 14 – 21, 2027",
+          "total": 12,
+          "booked": 6,
+          "spotsLeft": 6,
+          "chip": "6 spots"
+        },
+        {
+          "start": "2028-03-20",
+          "end": "2028-03-27",
+          "label": "Mar 20 – 27, 2028",
+          "total": 12,
+          "booked": 0,
+          "spotsLeft": 12,
+          "chip": "12 spots"
+        }
+      ],
+      "itinerary": [
+        {
+          "day": 1,
+          "title": "Arrival in Hanoi",
+          "description": "Meet at your hotel in the Old Quarter, take a short walk to Hoan Kiem Lake, and share a welcome dinner of Hanoi specialties."
+        },
+        {
+          "day": 2,
+          "title": "Hanoi — Sapa",
+          "description": "Travel north to Sapa by train and minibus, check in, and take an evening walk around the town above the clouds."
+        },
+        {
+          "day": 3,
+          "title": "Lao Chai — Ta Van",
+          "description": "Hike through rice terraces and bamboo forest to the villages of Lao Chai and Ta Van, and spend the night in a family homestay."
+        },
+        {
+          "day": 4,
+          "title": "Bac Ha market",
+          "description": "Drive to Bac Ha, one of the region's biggest and most colorful markets, and walk among stalls of local textiles and produce."
+        },
+        {
+          "day": 5,
+          "title": "Return to Hanoi",
+          "description": "Take a last morning walk in Sapa, then travel back to Hanoi for the evening."
+        },
+        {
+          "day": 6,
+          "title": "Ha Long Bay cruise",
+          "description": "Drive to Ha Long Bay, board a traditional boat, cruise past limestone islands, kayak, and spend the night on board."
+        },
+        {
+          "day": 7,
+          "title": "Ha Long — Ho Chi Minh City",
+          "description": "Enjoy the bay at sunrise, return to Hanoi, and take an evening flight to Ho Chi Minh City."
+        },
+        {
+          "day": 8,
+          "title": "Mekong Delta",
+          "description": "Drive to the delta, travel by boat through the canals, taste tropical fruit, and return to Ho Chi Minh City by evening."
+        }
+      ],
+      "included": [
+        "Hotels, a homestay, and one night on a boat",
+        "Breakfasts and most dinners",
+        "Train, boat, and domestic flight tickets",
+        "Local guide and transfers",
+        "Entrance fees on the route"
+      ],
+      "notIncluded": [
+        "International flights",
+        "Lunches",
+        "Tips for the guide",
+        "Visa fees where required"
+      ],
+      "similar": [
+        "islands-old-coastal-towns",
+        "fjords-mountain-trails"
+      ]
+    }
+  ]
+}

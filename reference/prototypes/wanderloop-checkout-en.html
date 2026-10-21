@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Wanderloop — checkout</title>
+<style>
+  :root {
+    --text: #2C2013;
+    --muted: #8A7A63;
+    --bg: #F2ECDE;
+    --card-bg: #FBF6EC;
+    --accent: #C9663D;
+    --accent-dark: #B2552F;
+    --accent-green: #6E7B4E;
+    --accent-soft: rgba(201,102,61,0.10);
+    --line: #E4D9C4;
+    --scarce: #B8863B;
+    --scarce-bg: #F3E6C8;
+    --ok-green: #6B8F5A;
+    --ok-green-bg: #E4EBDD;
+    --unavailable-bg: #E9E1CE;
+    --unavailable-text: #B3A88F;
+    --error: #B3392B;
+    --error-bg: #F7E3DE;
+  }
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  body {
+    margin: 0;
+    font-family: -apple-system, "Segoe UI", Inter, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+  }
+  button { font-family: inherit; }
+  a { color: var(--accent); }
+
+  /* ---------- simplified header ---------- */
+  .topbar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 40px;
+    background: var(--card-bg);
+    box-shadow: 0 2px 10px rgba(44,32,19,0.06);
+  }
+  .logo { font-size: 18px; font-weight: 700; text-decoration: none; }
+  .logo .wander { color: var(--accent); }
+  .logo .loop { color: var(--accent-green); }
+  .secure { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); }
+  .secure svg { width: 14px; height: 14px; stroke: var(--accent-green); }
+  .back-link { font-size: 13px; color: var(--muted); text-decoration: none; }
+  .back-link:hover { color: var(--accent); }
+
+  .page { max-width: 1120px; margin: 0 auto; padding: 28px 40px 60px; }
+  .page-head { margin-bottom: 24px; }
+  .page-head h1 { font-size: 28px; margin: 8px 0 4px; }
+  .page-head p { margin: 0; font-size: 13px; color: var(--muted); }
+
+  .grid { display: grid; grid-template-columns: minmax(0, 1fr) 400px; gap: 48px; align-items: start; }
+
+  /* ---------- blocks ---------- */
+  .block {
+    background: var(--card-bg); border: 1px solid var(--line); border-radius: 18px;
+    padding: 22px 24px; margin-bottom: 16px;
+  }
+  .block-head { display: flex; align-items: center; gap: 12px; }
+  .block-head h2 { font-size: 17px; margin: 0; flex: 1; }
+  .num {
+    flex: 0 0 auto; width: 30px; height: 30px; border-radius: 50%;
+    background: var(--accent); color: #fff; font-size: 13px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .num .ck { display: none; }
+  .edit-btn {
+    display: none; background: none; border: none; color: var(--accent); font-size: 13px; font-weight: 600;
+    cursor: pointer; padding: 4px 0; text-decoration: underline; text-underline-offset: 3px;
+  }
+  .block-summary { display: none; margin: 10px 0 0 42px; font-size: 13px; color: var(--muted); line-height: 1.6; }
+  .block-body { margin-top: 18px; }
+
+  .block[data-state="done"] .block-body { display: none; }
+  .block[data-state="done"] .block-summary { display: block; }
+  .block[data-state="done"] .edit-btn { display: inline; }
+  .block[data-state="done"] .num { background: var(--ok-green); }
+  .block[data-state="done"] .num .n { display: none; }
+  .block[data-state="done"] .num .ck { display: block; }
+
+  .block[data-state="locked"] { opacity: 0.6; }
+  .block[data-state="locked"] .block-body { display: none; }
+  .block[data-state="locked"] .block-summary { display: block; }
+  .block[data-state="locked"] .num { background: var(--unavailable-text); }
+
+  /* ---------- form fields ---------- */
+  .traveler + .traveler { margin-top: 22px; padding-top: 20px; border-top: 1px solid var(--line); }
+  .traveler-title { font-size: 13px; font-weight: 700; margin-bottom: 2px; }
+  .traveler-note { font-size: 12px; color: var(--muted); margin-bottom: 12px; }
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .row + .row, .field + .row, .row + .field { margin-top: 12px; }
+  .field label { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 0.03em; font-weight: 600; color: var(--muted); margin-bottom: 6px; }
+  .field input, .field select {
+    width: 100%; height: 46px; padding: 0 14px; border: 1px solid var(--line); border-radius: 12px;
+    background: #fff; font-size: 15px; color: var(--text); font-family: inherit; outline: none;
+    transition: border-color .12s, box-shadow .12s;
+  }
+  .field input::placeholder { color: var(--unavailable-text); }
+  .field input:focus, .field select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+  .field.invalid input, .field.invalid select { border-color: var(--error); background: #fffaf9; }
+  .field .err { display: none; font-size: 12px; color: var(--error); margin-top: 5px; }
+  .field.invalid .err { display: block; }
+
+  .info-note {
+    display: flex; gap: 10px; align-items: flex-start; background: var(--accent-soft); border-radius: 12px;
+    padding: 12px 14px; font-size: 12.5px; line-height: 1.5; margin-top: 18px;
+  }
+  .info-note svg { flex: 0 0 auto; width: 16px; height: 16px; margin-top: 1px; stroke: var(--accent); }
+
+  .btn-primary {
+    width: 100%; height: 50px; border: none; border-radius: 14px; background: var(--accent); color: #fff;
+    font-size: 15px; font-weight: 700; cursor: pointer; margin-top: 20px; transition: background .12s;
+  }
+  .btn-primary:hover:not(:disabled) { background: var(--accent-dark); }
+  .btn-primary:disabled { opacity: 0.6; cursor: wait; }
+  .btn-secondary {
+    height: 46px; padding: 0 20px; border: 1px solid var(--line); border-radius: 14px; background: transparent;
+    color: var(--text); font-size: 14px; font-weight: 600; cursor: pointer;
+  }
+  .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* ---------- payment ---------- */
+  .plan-list { display: flex; flex-direction: column; gap: 10px; }
+  .plan {
+    display: flex; gap: 12px; align-items: flex-start; border: 1px solid var(--line); border-radius: 14px;
+    padding: 14px 16px; cursor: pointer; background: #fff;
+  }
+  .plan:has(input:checked) { border-color: var(--accent); background: var(--accent-soft); }
+  .plan input { margin: 3px 0 0; accent-color: var(--accent); }
+  .plan-main { flex: 1; }
+  .plan-title { font-size: 14px; font-weight: 700; display: flex; justify-content: space-between; gap: 12px; }
+  .plan-sub { font-size: 12px; color: var(--muted); margin-top: 3px; line-height: 1.5; }
+
+  .express { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
+  .express button {
+    height: 46px; border: none; border-radius: 12px; background: #1E1610; color: #fff;
+    font-size: 14px; font-weight: 600; cursor: pointer;
+  }
+  .express button:hover { background: #3a2c20; }
+  .or { display: flex; align-items: center; gap: 12px; margin: 18px 0; font-size: 12px; color: var(--muted); }
+  .or::before, .or::after { content: ''; flex: 1; height: 1px; background: var(--line); }
+
+  .alert {
+    background: var(--error-bg); color: var(--error); border-radius: 12px; padding: 12px 14px;
+    font-size: 13px; line-height: 1.5; margin-bottom: 16px; border: 1px solid #ebc4bb;
+  }
+  .assure { font-size: 12px; color: var(--muted); text-align: center; margin-top: 12px; line-height: 1.6; }
+  .assure b { color: var(--ok-green); font-weight: 600; }
+
+  /* ---------- summary ---------- */
+  .summary {
+    position: sticky; top: 24px; background: var(--card-bg); border: 1px solid var(--line);
+    border-radius: 18px; padding: 20px; box-shadow: 0 4px 18px rgba(44,32,19,0.06);
+  }
+  .hold {
+    display: flex; align-items: center; gap: 10px; background: var(--ok-green-bg); color: #44603a;
+    border-radius: 12px; padding: 10px 12px; font-size: 12.5px; margin-bottom: 16px;
+  }
+  .hold .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--ok-green); flex: 0 0 auto; }
+  .hold .t { margin-left: auto; font-weight: 700; font-variant-numeric: tabular-nums; font-size: 14px; }
+  .hold.low { background: var(--scarce-bg); color: #7a5a1f; }
+  .hold.low .dot { background: var(--scarce); animation: pulse 1s infinite; }
+  @keyframes pulse { 50% { opacity: 0.3; } }
+  .extend {
+    display: block; width: 100%; min-height: 44px; margin: -6px 0 16px; padding: 8px 12px;
+    background: transparent; color: var(--text); border: 1px solid var(--accent); border-radius: 12px;
+    font: inherit; font-size: 13px; font-weight: 600; cursor: pointer;
+  }
+  .extend[hidden] { display: none; }
+  .extend:hover { background: var(--card-bg); }
+
+  .tour-mini { display: flex; gap: 12px; align-items: center; margin-bottom: 14px; }
+  .tour-mini .thumb { width: 64px; height: 64px; border-radius: 12px; background: linear-gradient(135deg, var(--accent-green), var(--line)); flex: 0 0 auto; }
+  .tour-mini .place { font-size: 11px; color: var(--muted); }
+  .tour-mini .tname { font-size: 15px; font-weight: 700; line-height: 1.3; }
+  .facts { border-top: 1px solid var(--line); padding-top: 12px; margin: 0 0 12px; font-size: 13px; }
+  .facts div { display: flex; justify-content: space-between; padding: 4px 0; gap: 12px; }
+  .facts dt { color: var(--muted); }
+  .facts dd { margin: 0; font-weight: 600; text-align: right; }
+  .change-link { font-size: 12px; }
+
+  .lines { border-top: 1px solid var(--line); padding-top: 12px; font-size: 13px; }
+  .lines .l { display: flex; justify-content: space-between; padding: 4px 0; }
+  .lines .l.disc { color: var(--ok-green); font-weight: 600; }
+  .promo-toggle { background: none; border: none; padding: 6px 0 0; font-size: 12.5px; color: var(--accent); cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
+  .promo-box { display: flex; gap: 8px; margin-top: 8px; }
+  .promo-box input { flex: 1; height: 40px; border: 1px solid var(--line); border-radius: 10px; padding: 0 12px; font-size: 14px; text-transform: uppercase; background: #fff; outline: none; min-width: 0; }
+  .promo-box input:focus { border-color: var(--accent); }
+  .promo-box button { height: 40px; padding: 0 14px; border-radius: 10px; border: 1px solid var(--accent); background: transparent; color: var(--accent); font-weight: 600; cursor: pointer; }
+  .promo-msg { font-size: 12px; margin-top: 6px; }
+  .promo-msg.err { color: var(--error); }
+  .promo-msg.ok { color: var(--ok-green); }
+
+  .totals { border-top: 1px solid var(--line); margin-top: 12px; padding-top: 12px; }
+  .total-main { display: flex; justify-content: space-between; align-items: baseline; font-size: 15px; font-weight: 700; }
+  .total-main .amt { font-size: 22px; }
+  .total-later { display: flex; justify-content: space-between; font-size: 12.5px; color: var(--muted); margin-top: 6px; }
+  .trust { margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--line); font-size: 12px; color: var(--muted); line-height: 1.6; }
+  .trust b { color: var(--ok-green); font-weight: 600; }
+
+  /* ---------- state screens ---------- */
+  .state-card {
+    max-width: 640px; margin: 20px auto 0; background: var(--card-bg); border: 1px solid var(--line);
+    border-radius: 20px; padding: 36px; text-align: center;
+  }
+  .state-icon { width: 56px; height: 56px; border-radius: 50%; margin: 0 auto 16px; display: flex; align-items: center; justify-content: center; }
+  .state-icon svg { width: 26px; height: 26px; }
+  .state-icon.warn { background: var(--scarce-bg); } .state-icon.warn svg { stroke: var(--scarce); }
+  .state-icon.ok { background: var(--ok-green-bg); } .state-icon.ok svg { stroke: var(--ok-green); }
+  .state-card h2 { font-size: 22px; margin: 0 0 8px; }
+  .state-card p { font-size: 14px; color: var(--muted); line-height: 1.6; margin: 0 0 20px; }
+  .state-actions { display: flex; flex-direction: column; gap: 10px; max-width: 360px; margin: 0 auto; }
+  .state-actions .btn-primary { margin-top: 0; }
+  .alt-date {
+    text-align: left; border: 1px solid var(--line); border-radius: 14px; padding: 12px 14px; margin: 0 auto 16px; max-width: 360px;
+    display: flex; justify-content: space-between; align-items: center; font-size: 13px; background: #fff;
+  }
+  .alt-date .s { font-size: 11px; color: var(--ok-green); }
+
+  .confirm-ref { display: inline-block; background: var(--accent-soft); color: var(--accent); font-weight: 700; padding: 6px 14px; border-radius: 999px; font-size: 13px; margin-bottom: 20px; letter-spacing: 0.02em; }
+  .next-steps { text-align: left; border-top: 1px solid var(--line); margin-top: 24px; padding-top: 20px; }
+  .next-steps h3 { font-size: 15px; margin: 0 0 12px; }
+  .step { display: flex; gap: 12px; padding: 8px 0; font-size: 13.5px; line-height: 1.5; }
+  .step .sn { flex: 0 0 auto; width: 24px; height: 24px; border-radius: 50%; background: var(--accent-soft); color: var(--accent); font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+  .step .sd { color: var(--muted); font-size: 12.5px; }
+  .confirm-actions { display: flex; gap: 10px; justify-content: center; margin-top: 24px; flex-wrap: wrap; }
+  .account-offer { text-align: left; background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 16px; margin-top: 24px; display: flex; gap: 14px; align-items: center; justify-content: space-between; }
+  .account-offer .at { font-size: 14px; font-weight: 700; }
+  .account-offer .ad { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+  /* ---------- demo panel (not part of the UI) ---------- */
+  .demo {
+    margin-top: 40px; border: 1.5px dashed var(--unavailable-text); border-radius: 14px; padding: 14px 16px;
+    font-size: 12px; color: var(--muted);
+  }
+  .demo b { color: var(--text); }
+  .demo-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; align-items: center; }
+  .demo button { height: 32px; padding: 0 12px; border: 1px solid var(--line); border-radius: 8px; background: #fff; font-size: 12px; cursor: pointer; color: var(--text); }
+  .demo button:hover { border-color: var(--accent); color: var(--accent); }
+  .demo label { display: flex; gap: 6px; align-items: center; cursor: pointer; }
+
+  .toast {
+    position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%) translateY(20px); opacity: 0;
+    background: #1E1610; color: #fff; padding: 12px 18px; border-radius: 12px; font-size: 13px;
+    transition: all .2s; pointer-events: none; z-index: 99;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  @media (max-width: 900px) {
+    .topbar { padding: 12px 16px; }
+    .page { padding: 20px 16px 40px; }
+    .grid { grid-template-columns: 1fr; gap: 20px; }
+    .summary { position: static; order: -1; }
+    .row { grid-template-columns: 1fr; }
+    .state-card { padding: 24px 18px; }
+    .account-offer { flex-direction: column; align-items: stretch; }
+  }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <a class="logo" href="wanderloop-tour-page.html"><span class="wander">Wander</span><span class="loop">loop</span></a>
+  <div class="secure">
+    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+    Secure payment
+  </div>
+</header>
+
+<main class="page">
+
+  <!-- ====================== CHECKOUT ====================== -->
+  <div id="view-checkout">
+    <div class="page-head">
+      <a class="back-link" href="wanderloop-tour-page.html">← Back to trip</a>
+      <h1>Complete your booking</h1>
+      <p>Takes about 2 minutes. No account needed.</p>
+    </div>
+
+    <div class="grid">
+      <div class="left">
+
+        <!-- BLOCK 1 -->
+        <section class="block" id="block1" data-state="active" aria-labelledby="b1h">
+          <div class="block-head">
+            <span class="num"><span class="n">1</span><svg class="ck" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"/></svg></span>
+            <h2 id="b1h">Contact details &amp; travelers</h2>
+            <button class="edit-btn" type="button" id="edit1">Edit</button>
+          </div>
+          <div class="block-summary" id="sum1"></div>
+          <div class="block-body" id="body1">
+            <div id="travelers"></div>
+            <div class="info-note">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16.5v.01"/></svg>
+              <span>No need to enter passport details now: we'll email you a link, and you can fill them in within 7 days of booking.</span>
+            </div>
+            <button class="btn-primary" type="button" id="continue1">Continue to payment</button>
+          </div>
+        </section>
+
+        <!-- BLOCK 2 -->
+        <section class="block" id="block2" data-state="locked" aria-labelledby="b2h">
+          <div class="block-head">
+            <span class="num"><span class="n">2</span></span>
+            <h2 id="b2h">Payment</h2>
+          </div>
+          <div class="block-summary" id="sum2">Fill in contact details and travelers first.</div>
+          <div class="block-body" id="body2">
+            <div class="alert" id="payAlert" role="alert" hidden></div>
+
+            <div class="field-label" style="font-size:11px;text-transform:uppercase;letter-spacing:.03em;font-weight:600;color:var(--muted);margin-bottom:8px;">How to pay</div>
+            <div class="plan-list" role="radiogroup" aria-label="Payment option">
+              <label class="plan">
+                <input type="radio" name="plan" value="full" checked>
+                <div class="plan-main">
+                  <div class="plan-title"><span>Pay in full now</span><span id="planFullAmt"></span></div>
+                  <div class="plan-sub">Nothing more to pay, your booking is fully paid.</div>
+                </div>
+              </label>
+              <label class="plan">
+                <input type="radio" name="plan" value="deposit">
+                <div class="plan-main">
+                  <div class="plan-title"><span>Pay 30% now</span><span id="planDepAmt"></span></div>
+                  <div class="plan-sub" id="planDepSub"></div>
+                </div>
+              </label>
+            </div>
+
+            <div class="express">
+              <button type="button" id="applePay">Apple Pay</button>
+              <button type="button" id="googlePay">Google Pay</button>
+            </div>
+            <div class="or">or pay by card</div>
+
+            <div class="field" data-field="cardnum">
+              <label for="cardnum">Card number</label>
+              <input id="cardnum" data-rule="cardnum" inputmode="numeric" autocomplete="cc-number" placeholder="0000 0000 0000 0000" maxlength="19">
+              <div class="err" role="alert"></div>
+            </div>
+            <div class="row">
+              <div class="field" data-field="exp">
+                <label for="exp">Expiry date</label>
+                <input id="exp" data-rule="exp" inputmode="numeric" autocomplete="cc-exp" placeholder="MM/YY" maxlength="5">
+                <div class="err" role="alert"></div>
+              </div>
+              <div class="field" data-field="cvc">
+                <label for="cvc">CVC</label>
+                <input id="cvc" data-rule="cvc" inputmode="numeric" autocomplete="cc-csc" placeholder="123" maxlength="3">
+                <div class="err" role="alert"></div>
+              </div>
+            </div>
+            <div class="field" style="margin-top:12px" data-field="cardname">
+              <label for="cardname">Name on card</label>
+              <input id="cardname" data-rule="text" autocomplete="cc-name" placeholder="JOHN SMITH">
+              <div class="err" role="alert"></div>
+            </div>
+
+            <button class="btn-primary" type="button" id="payBtn">Pay</button>
+            <div class="assure">
+              <b>Free cancellation until <span id="cancelDate1"></span></b><br>
+              By clicking “Pay”, you agree to the <a href="#" onclick="return false">booking terms</a>. Your payment is encrypted.
+            </div>
+          </div>
+        </section>
+
+      </div>
+
+      <!-- SUMMARY -->
+      <aside class="summary" id="summary" aria-label="Your order">
+        <div class="hold" id="hold" role="timer">
+          <span class="dot"></span>
+          <span>Spots held for you</span>
+          <span class="t" id="timer">15:00</span>
+        </div>
+        <button class="extend" type="button" id="extendBtn" hidden>Extend by 5 minutes</button>
+        <div class="tour-mini">
+          <div class="thumb"></div>
+          <div>
+            <div class="place">Georgia · Svaneti</div>
+            <div class="tname">Mountain Trekking, 6 Days</div>
+          </div>
+        </div>
+        <dl class="facts">
+          <div><dt>Dates</dt><dd>September 28 – October 3, 2027</dd></div>
+          <div><dt>Group</dt><dd id="factGroup"></dd></div>
+        </dl>
+        <a class="change-link" href="wanderloop-tour-page.html">Change date or group size</a>
+
+        <div class="lines" style="margin-top:14px">
+          <div class="l"><span id="lnAdults"></span><span id="lnAdultsAmt"></span></div>
+          <div class="l" id="lnChildRow"><span id="lnChildren"></span><span id="lnChildrenAmt"></span></div>
+          <div class="l disc" id="lnDiscRow" hidden><span>Promo code <span id="lnDiscCode"></span></span><span id="lnDiscAmt"></span></div>
+          <button class="promo-toggle" type="button" id="promoToggle">Have a promo code?</button>
+          <div class="promo-box" id="promoBox" hidden>
+            <input id="promoInput" placeholder="Promo code" aria-label="Promo code" autocomplete="off">
+            <button type="button" id="promoApply">Apply</button>
+          </div>
+          <div class="promo-msg" id="promoMsg"></div>
+        </div>
+
+        <div class="totals">
+          <div class="total-main"><span>Total</span><span class="amt" id="totalAmt"></span></div>
+          <div class="total-later" id="laterRow" hidden><span>Due now</span><b id="dueNow"></b></div>
+          <div class="total-later" id="laterRow2" hidden><span id="laterLabel"></span><span id="laterAmt"></span></div>
+        </div>
+
+        <div class="trust">
+          <b>Free cancellation until <span id="cancelDate2"></span></b><br>
+          Booking questions: support@wanderloop.example
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <!-- ====================== SOLD OUT ====================== -->
+  <div id="view-soldout" hidden>
+    <div class="state-card">
+      <div class="state-icon warn"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v6M12 16.5v.01"/></svg></div>
+      <h2>Those spots were just booked</h2>
+      <p>There are no spots left for your group on September 28. You haven't been charged, and we've kept your details.</p>
+      <div class="alt-date">
+        <div><b>November 14, 2027</b><div class="s">5 of 8 spots available</div></div>
+        <button class="btn-secondary" type="button" id="altDateBtn" style="height:36px;padding:0 14px">Select</button>
+      </div>
+      <div class="state-actions">
+        <button class="btn-primary" type="button" id="waitlistBtn">Join the waitlist for September 28</button>
+        <a class="btn-secondary" href="wanderloop-tour-page.html" style="display:flex;align-items:center;justify-content:center;text-decoration:none">Back to trip</a>
+      </div>
+      <div class="assure" id="waitlistMsg" hidden style="color:var(--ok-green);font-weight:600"></div>
+    </div>
+  </div>
+
+  <!-- ====================== EXPIRED ====================== -->
+  <div id="view-expired" hidden>
+    <div class="state-card">
+      <div class="state-icon warn"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div>
+      <h2>Your hold has expired</h2>
+      <p>Good news: the spots on September 28 are still available. We'll hold them again for 15 minutes, and your details are already filled in.</p>
+      <div class="state-actions">
+        <button class="btn-primary" type="button" id="reholdBtn">Hold spots again</button>
+        <a class="btn-secondary" href="wanderloop-tour-page.html" style="display:flex;align-items:center;justify-content:center;text-decoration:none">Back to trip</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====================== CONFIRMATION ====================== -->
+  <div id="view-confirm" hidden>
+    <div class="state-card" style="max-width:680px">
+      <div class="state-icon ok"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"/></svg></div>
+      <h2>Booking confirmed</h2>
+      <p>We've sent the details to <b id="confEmail" style="color:var(--text)"></b></p>
+      <div class="confirm-ref">Booking number WL-48271</div>
+      <dl class="facts" style="text-align:left;max-width:420px;margin:0 auto">
+        <div><dt>Trip</dt><dd>Mountain Trekking, 6 Days</dd></div>
+        <div><dt>Dates</dt><dd>September 28 – October 3, 2027</dd></div>
+        <div><dt>Group</dt><dd id="confGroup"></dd></div>
+        <div><dt id="confPaidLabel">Paid</dt><dd id="confPaid"></dd></div>
+      </dl>
+
+      <div class="next-steps">
+        <h3>What's next</h3>
+        <div class="step"><span class="sn">1</span><div>Enter passport details for all travelers<div class="sd">Link in the email, within 7 days</div></div></div>
+        <div class="step" id="stepRest"><span class="sn">2</span><div id="stepRestText"></div></div>
+        <div class="step"><span class="sn" id="stepListNum">3</span><div>We'll send a packing list and on-trip contact details<div class="sd">14 days before departure</div></div></div>
+      </div>
+
+      <div class="confirm-actions">
+        <button class="btn-secondary" type="button" id="icsBtn">Add to calendar</button>
+        <button class="btn-secondary" type="button" id="voucherBtn">Download voucher</button>
+      </div>
+
+      <div class="account-offer">
+        <div>
+          <div class="at">Save this booking to your account</div>
+          <div class="ad">Sign in with a link from the email, no password needed.</div>
+        </div>
+        <button class="btn-secondary" type="button" id="accountBtn">Create account</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====================== DEMO PANEL ====================== -->
+  <div class="demo" id="demo">
+    <b>Demo panel</b> — not part of the UI, just a shortcut to preview states.
+    <div class="demo-row">
+      <button type="button" id="dFill">Fill with test data</button>
+      <button type="button" id="dLow">3 minutes left</button>
+      <button type="button" id="dExpire">Time expired</button>
+      <button type="button" id="dSold">Spots taken</button>
+      <label><input type="checkbox" id="dDecline"> Decline next payment</label>
+      <button type="button" id="dReset">Start over</button>
+    </div>
+    <div style="margin-top:8px">Test card: 4242 4242 4242 4242, expiry 12/30, CVC 123. Test promo code: WANDER10.</div>
+  </div>
+
+</main>
+
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+  // ---------- data ----------
+  const cfg = { adults: 2, children: 1, adultPrice: 1240, childPrice: 620, depositPct: 0.3 };
+  const HOLD_SECONDS = 15 * 60;
+  const state = { promo: null, plan: 'full', declineNext: false, paying: false, endTime: Date.now() + HOLD_SECONDS * 1000, timerId: null, extended: false, view: 'checkout' };
+
+  const $ = (id) => document.getElementById(id);
+  const fmt = (n) => '$' + Math.round(n).toLocaleString('en-US');
+  const plural = (n, one, many) => (n === 1 ? one : many);
+
+  function groupText() {
+    const parts = [cfg.adults + ' ' + plural(cfg.adults, 'adult', 'adults')];
+    if (cfg.children) parts.push(cfg.children + ' ' + plural(cfg.children, 'child', 'children'));
+    return parts.join(', ');
+  }
+
+  function totals() {
+    const adultsAmt = cfg.adults * cfg.adultPrice;
+    const childAmt = cfg.children * cfg.childPrice;
+    const subtotal = adultsAmt + childAmt;
+    const disc = state.promo ? Math.round(subtotal * state.promo.pct) : 0;
+    const total = subtotal - disc;
+    const deposit = Math.round(total * cfg.depositPct);
+    const dueNow = state.plan === 'deposit' ? deposit : total;
+    return { adultsAmt, childAmt, subtotal, disc, total, deposit, rest: total - deposit, dueNow };
+  }
+
+  // ---------- travelers form ----------
+  function field(id, label, rule, attrs) {
+    return `<div class="field" data-field="${id}">
+      <label for="${id}">${label}</label>
+      <input id="${id}" data-rule="${rule}" ${attrs || ''}>
+      <div class="err" role="alert"></div></div>`;
+  }
+  function buildTravelers() {
+    let html = '';
+    const total = cfg.adults + cfg.children;
+    for (let i = 0; i < total; i++) {
+      const isChild = i >= cfg.adults;
+      if (i === 0) {
+        html += `<div class="traveler">
+          <div class="traveler-title">Lead traveler</div>
+          <div class="traveler-note">Name as in your passport. Your confirmation will be sent to this email.</div>
+          <div class="row">${field('t0first', 'First name', 'text', 'autocomplete="given-name" placeholder="Anna"')}${field('t0last', 'Last name', 'text', 'autocomplete="family-name" placeholder="Miller"')}</div>
+          <div class="row">${field('email', 'Email', 'email', 'type="email" autocomplete="email" placeholder="name@mail.com"')}${field('phone', 'Phone', 'phone', 'type="tel" autocomplete="tel" placeholder="+1 555 000-0000"')}</div>
+        </div>`;
+      } else {
+        html += `<div class="traveler">
+          <div class="traveler-title">Traveler ${i + 1} · ${isChild ? 'child' : 'adult'}</div>
+          <div class="row">${field('t' + i + 'first', 'First name', 'text', 'placeholder="First name"')}${field('t' + i + 'last', 'Last name', 'text', 'placeholder="Last name"')}</div>
+          ${isChild ? `<div class="field" style="margin-top:12px;max-width:50%" data-field="t${i}age">
+            <label for="t${i}age">Age at departure</label>
+            <select id="t${i}age" data-rule="select"><option value="">Select</option>${[2,3,4,5,6,7,8,9,10,11].map(a => `<option value="${a}">${a} years</option>`).join('')}</select>
+            <div class="err" role="alert"></div></div>` : ''}
+        </div>`;
+      }
+    }
+    $('travelers').innerHTML = html;
+  }
+
+  // ---------- validation ----------
+  const MSG = {
+    text: 'Please fill in this field', email: 'Check your email, for example name@mail.com',
+    phone: 'Enter a number with country code', select: "Select the child's age",
+    cardnum: 'Check your card number', expEmpty: 'Enter the expiry date, for example 12/30',
+    expPast: 'This card has expired', cvc: '3 digits on the back of the card'
+  };
+  function luhn(num) {
+    let sum = 0, alt = false;
+    for (let i = num.length - 1; i >= 0; i--) { let d = +num[i]; if (alt) { d *= 2; if (d > 9) d -= 9; } sum += d; alt = !alt; }
+    return sum % 10 === 0;
+  }
+  function validateInput(el) {
+    const v = el.value.trim(), rule = el.dataset.rule;
+    if (rule === 'text') return v ? '' : MSG.text;
+    if (rule === 'select') return v ? '' : MSG.select;
+    if (rule === 'email') return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v) ? '' : MSG.email;
+    if (rule === 'phone') return v.replace(/\D/g, '').length >= 8 ? '' : MSG.phone;
+    if (rule === 'cardnum') { const d = v.replace(/\s/g, ''); return (d.length === 16 && luhn(d)) ? '' : MSG.cardnum; }
+    if (rule === 'exp') {
+      const m = v.match(/^(\d{2})\/(\d{2})$/);
+      if (!m) return MSG.expEmpty;
+      const mm = +m[1], yy = 2000 + +m[2];
+      if (mm < 1 || mm > 12) return MSG.expEmpty;
+      const now = new Date();
+      if (yy < now.getFullYear() || (yy === now.getFullYear() && mm < now.getMonth() + 1)) return MSG.expPast;
+      return '';
+    }
+    if (rule === 'cvc') return /^\d{3}$/.test(v) ? '' : MSG.cvc;
+    return '';
+  }
+  function showError(el, msg) {
+    const wrap = el.closest('.field');
+    wrap.classList.toggle('invalid', !!msg);
+    wrap.querySelector('.err').textContent = msg || '';
+    el.setAttribute('aria-invalid', msg ? 'true' : 'false');
+  }
+  function validateGroup(container) {
+    let firstBad = null;
+    container.querySelectorAll('[data-rule]').forEach((el) => {
+      const msg = validateInput(el);
+      showError(el, msg);
+      if (msg && !firstBad) firstBad = el;
+    });
+    if (firstBad) firstBad.focus();
+    return !firstBad;
+  }
+  // validate on blur, clear on input once corrected
+  document.addEventListener('focusout', (e) => {
+    if (e.target.matches && e.target.matches('[data-rule]') && (e.target.value || e.target.closest('.field').classList.contains('invalid'))) {
+      showError(e.target, validateInput(e.target));
+    }
+  });
+  document.addEventListener('input', (e) => {
+    const el = e.target;
+    if (!el.matches || !el.matches('[data-rule]')) return;
+    if (el.id === 'cardnum') {
+      const d = el.value.replace(/\D/g, '').slice(0, 16);
+      el.value = d.replace(/(.{4})/g, '$1 ').trim();
+    }
+    if (el.id === 'exp') {
+      let d = el.value.replace(/\D/g, '').slice(0, 4);
+      if (d.length >= 3) d = d.slice(0, 2) + '/' + d.slice(2);
+      el.value = d;
+    }
+    if (el.id === 'cvc') el.value = el.value.replace(/\D/g, '').slice(0, 3);
+    if (el.closest('.field').classList.contains('invalid') && !validateInput(el)) showError(el, '');
+  });
+
+  // ---------- blocks ----------
+  function setBlock(n, st) { $('block' + n).dataset.state = st; }
+  function dateMinus30() { return 'August 29, 2027'; } // departure Sep 28, 2027 minus 30 days
+
+  function updateBlock1Summary() {
+    const first = $('t0first').value.trim(), last = $('t0last').value.trim();
+    const extra = cfg.adults + cfg.children - 1;
+    $('sum1').innerHTML = `<b style="color:var(--text)">${esc(first)} ${esc(last)}</b> · ${esc($('email').value.trim())} · ${esc($('phone').value.trim())}` +
+      (extra ? `<br>+ ${extra} more ${plural(extra, 'traveler', 'travelers')}` : '');
+  }
+  function esc(s) { return s.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+
+  $('continue1').addEventListener('click', () => {
+    if (!validateGroup($('body1'))) return;
+    updateBlock1Summary();
+    setBlock(1, 'done');
+    setBlock(2, 'active');
+    $('block2').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    setTimeout(() => $('cardnum').focus({ preventScroll: true }), 250);
+  });
+  $('edit1').addEventListener('click', () => {
+    setBlock(1, 'active');
+    setBlock(2, 'locked');
+    $('t0first').focus();
+  });
+
+  // ---------- summary ----------
+  function renderSummary() {
+    const t = totals();
+    $('factGroup').textContent = groupText();
+    $('lnAdults').textContent = `${cfg.adults} × adult, ${fmt(cfg.adultPrice)}`;
+    $('lnAdultsAmt').textContent = fmt(t.adultsAmt);
+    $('lnChildRow').hidden = !cfg.children;
+    $('lnChildren').textContent = `${cfg.children} × child, ${fmt(cfg.childPrice)}`;
+    $('lnChildrenAmt').textContent = fmt(t.childAmt);
+    $('lnDiscRow').hidden = !state.promo;
+    if (state.promo) { $('lnDiscCode').textContent = state.promo.code; $('lnDiscAmt').textContent = '−' + fmt(t.disc); }
+    $('totalAmt').textContent = fmt(t.total);
+    const dep = state.plan === 'deposit';
+    $('laterRow').hidden = !dep; $('laterRow2').hidden = !dep;
+    if (dep) {
+      $('dueNow').textContent = fmt(t.dueNow);
+      $('laterLabel').textContent = 'Remaining due by ' + dateMinus30();
+      $('laterAmt').textContent = fmt(t.rest);
+    }
+    $('planFullAmt').textContent = fmt(t.total);
+    $('planDepAmt').textContent = fmt(t.deposit);
+    $('planDepSub').textContent = `Pay the remaining ${fmt(t.rest)} by ${dateMinus30()}. We'll email you a reminder.`;
+    $('payBtn').textContent = 'Pay ' + fmt(t.dueNow);
+    $('cancelDate1').textContent = dateMinus30();
+    $('cancelDate2').textContent = dateMinus30();
+  }
+  document.querySelectorAll('input[name="plan"]').forEach((r) => r.addEventListener('change', () => { state.plan = r.value; renderSummary(); }));
+
+  // promo
+  $('promoToggle').addEventListener('click', () => { $('promoBox').hidden = false; $('promoToggle').hidden = true; $('promoInput').focus(); });
+  function applyPromo() {
+    const code = $('promoInput').value.trim().toUpperCase();
+    const msg = $('promoMsg');
+    if (!code) return;
+    if (code === 'WANDER10') {
+      state.promo = { code, pct: 0.1 };
+      msg.className = 'promo-msg ok'; msg.textContent = 'Promo code applied: 10% off';
+      $('promoBox').hidden = true;
+    } else {
+      msg.className = 'promo-msg err'; msg.textContent = "That promo code doesn't exist. Check the spelling.";
+    }
+    renderSummary();
+  }
+  $('promoApply').addEventListener('click', applyPromo);
+  $('promoInput').addEventListener('keydown', (e) => { if (e.key === 'Enter') applyPromo(); });
+
+  // ---------- timer ----------
+  function tick() {
+    const left = Math.max(0, Math.round((state.endTime - Date.now()) / 1000));
+    const m = Math.floor(left / 60), s = left % 60;
+    $('timer').textContent = m + ':' + String(s).padStart(2, '0');
+    $('hold').classList.toggle('low', left <= 180);
+    $('extendBtn').hidden = !(left <= 180 && left > 0 && !state.extended);
+    if (left <= 0 && state.view === 'checkout' && !state.paying) showView('expired');
+  }
+  function startTimer(seconds) {
+    state.endTime = Date.now() + (seconds || HOLD_SECONDS) * 1000;
+    state.extended = false;
+    clearInterval(state.timerId);
+    state.timerId = setInterval(tick, 1000);
+    tick();
+  }
+
+  // ---------- views ----------
+  function showView(v) {
+    state.view = v;
+    ['checkout', 'soldout', 'expired', 'confirm'].forEach((n) => { $('view-' + n).hidden = n !== v; });
+    if (v !== 'checkout') window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (v === 'soldout' || v === 'confirm') clearInterval(state.timerId);
+  }
+
+  // ---------- payment ----------
+  function pay(method) {
+    if (state.paying) return;
+    if (method === 'card') {
+      const ok = validateGroup($('body2'));
+      if (!ok) return;
+    }
+    state.paying = true;
+    $('payAlert').hidden = true;
+    const btn = $('payBtn');
+    btn.disabled = true; btn.textContent = 'Processing payment…';
+    setTimeout(() => {
+      state.paying = false;
+      btn.disabled = false;
+      if (state.declineNext) {
+        state.declineNext = false; $('dDecline').checked = false;
+        $('payAlert').textContent = 'Your bank declined the payment. Try another card or Apple Pay. Your details are saved and you have not been charged.';
+        $('payAlert').hidden = false;
+        renderSummary();
+        $('payAlert').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return;
+      }
+      renderSummary();
+      renderConfirmation();
+      showView('confirm');
+    }, 1200);
+  }
+  $('payBtn').addEventListener('click', () => pay('card'));
+  $('applePay').addEventListener('click', () => pay('wallet'));
+  $('googlePay').addEventListener('click', () => pay('wallet'));
+
+  function renderConfirmation() {
+    const t = totals();
+    $('confEmail').textContent = $('email').value.trim() || 'your email';
+    $('confGroup').textContent = groupText();
+    if (state.plan === 'deposit') {
+      $('confPaidLabel').textContent = 'Paid now';
+      $('confPaid').textContent = fmt(t.dueNow) + ' of ' + fmt(t.total);
+      $('stepRest').hidden = false;
+      $('stepRestText').innerHTML = `Pay the remaining ${fmt(t.rest)} by ${dateMinus30()}<div class="sd">We'll email a reminder 5 days before</div>`;
+      $('stepListNum').textContent = '3';
+    } else {
+      $('confPaidLabel').textContent = 'Paid';
+      $('confPaid').textContent = fmt(t.total);
+      $('stepRest').hidden = true;
+      $('stepListNum').textContent = '2';
+    }
+  }
+
+  // ---------- state-screen actions ----------
+  $('reholdBtn').addEventListener('click', () => { showView('checkout'); startTimer(); toast('Spots held again for 15 minutes'); });
+  $('altDateBtn').addEventListener('click', () => toast('In the product, this opens the trip page with November 14 preselected'));
+  $('extendBtn').addEventListener('click', () => {
+    if (state.extended) return;
+    state.extended = true;
+    state.endTime += 5 * 60 * 1000;
+    tick();
+    toast('Spots held for 5 more minutes');
+    $('hold').setAttribute('tabindex', '-1'); $('hold').focus(); // keep keyboard focus after the button hides
+  });
+  $('waitlistBtn').addEventListener('click', () => {
+    const m = $('waitlistMsg');
+    m.hidden = false;
+    m.textContent = "You're on the waitlist. If a spot opens up, we'll email " + ($('email').value.trim() || 'you') + '.';
+    $('waitlistBtn').disabled = true; $('waitlistBtn').textContent = "You're on the waitlist";
+  });
+  $('voucherBtn').addEventListener('click', () => toast('Voucher downloading (no file in the prototype)'));
+  $('accountBtn').addEventListener('click', () => toast('Sign-in link sent to your email'));
+  $('icsBtn').addEventListener('click', () => {
+    const ics = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Wanderloop//EN', 'BEGIN:VEVENT', 'UID:WL-48271@wanderloop.example',
+      'DTSTAMP:20261015T090000Z', 'DTSTART;VALUE=DATE:20270928', 'DTEND;VALUE=DATE:20271004',
+      'SUMMARY:Wanderloop: Mountain Trekking, Svaneti', 'END:VEVENT', 'END:VCALENDAR'].join('\r\n');
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([ics], { type: 'text/calendar' }));
+    a.download = 'wanderloop-svaneti.ics';
+    document.body.appendChild(a); a.click(); a.remove();
+    toast('Event saved as a calendar file');
+  });
+
+  // ---------- demo panel ----------
+  $('dFill').addEventListener('click', () => {
+    const set = (id, v) => { const el = $(id); if (el) el.value = v; };
+    set('t0first', 'Anna'); set('t0last', 'Miller'); set('email', 'anna@example.com'); set('phone', '+1 555 000-0000');
+    set('t1first', 'Peter'); set('t1last', 'Miller'); set('t2first', 'Maria'); set('t2last', 'Miller'); set('t2age', '8');
+    set('cardnum', '4242 4242 4242 4242'); set('exp', '12/30'); set('cvc', '123'); set('cardname', 'ANNA MILLER');
+    document.querySelectorAll('.field.invalid').forEach((f) => { f.classList.remove('invalid'); });
+    toast('Fields filled with test data');
+  });
+  $('dLow').addEventListener('click', () => { if (state.view !== 'checkout') showView('checkout'); startTimer(180); });
+  $('dExpire').addEventListener('click', () => { if (state.view === 'confirm') return; showView('expired'); });
+  $('dSold').addEventListener('click', () => { if (state.view === 'confirm') return; showView('soldout'); });
+  $('dDecline').addEventListener('change', (e) => { state.declineNext = e.target.checked; });
+  $('dReset').addEventListener('click', () => location.reload());
+
+  let toastT;
+  function toast(msg) {
+    const t = $('toast'); t.textContent = msg; t.classList.add('show');
+    clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), 2600);
+  }
+
+  // ---------- init ----------
+  buildTravelers();
+  renderSummary();
+  startTimer();
+</script>
+</body>
+</html>

@@ -1,0 +1,286 @@
+---
+// Login and sign-up modals, shared across the whole site (rendered once in
+// Layout.astro). No real backend: see src/scripts/auth.js for the mocked
+// sign-in logic. Design: reference/figma/components/login-modal.png,
+// signup-modal.png. CLAUDE.md: "modals, no route; close on Esc and the Close
+// button, focus returns to the opener."
+---
+
+<div class="auth-overlay" data-auth-overlay hidden>
+  <div
+    class="auth-modal"
+    data-auth-modal="login"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="login-heading"
+    hidden
+  >
+    <h2 id="login-heading">Log in</h2>
+    <p class="auth-modal__sub">Welcome back.</p>
+    <form data-login-form novalidate>
+      <div class="error-summary" data-login-error-summary role="alert" hidden>
+        <p>Please fix the following:</p>
+        <ul data-login-error-list></ul>
+      </div>
+      <div class="field" data-field="login-email">
+        <label for="login-email">Email</label>
+        <input
+          id="login-email"
+          type="email"
+          data-rule="email"
+          autocomplete="email"
+          placeholder="you@gmail.com"
+          aria-describedby="login-email-err"
+        />
+        <p class="field__error" id="login-email-err" data-error></p>
+      </div>
+      <div class="field" data-field="login-password">
+        <label for="login-password">Password</label>
+        <input
+          id="login-password"
+          type="password"
+          data-rule="password"
+          autocomplete="current-password"
+          placeholder="••••••"
+          aria-describedby="login-password-err"
+        />
+        <p class="field__error" id="login-password-err" data-error></p>
+      </div>
+      <button type="button" class="auth-modal__link" data-forgot-btn>Forgot password?</button>
+      <p class="auth-modal__switch">Don't have an account? <button type="button" data-show-signup>Sign up</button></p>
+      <button type="submit" class="btn btn--solid auth-modal__submit">Log in</button>
+      <button type="button" class="auth-modal__close" data-modal-close>Close</button>
+    </form>
+  </div>
+
+  <div
+    class="auth-modal"
+    data-auth-modal="signup"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="signup-heading"
+    hidden
+  >
+    <h2 id="signup-heading">Sign up</h2>
+    <p class="auth-modal__sub">Create an account to book trips.</p>
+    <form data-signup-form novalidate>
+      <div class="error-summary" data-signup-error-summary role="alert" hidden>
+        <p>Please fix the following:</p>
+        <ul data-signup-error-list></ul>
+      </div>
+      <div class="field-row">
+        <div class="field" data-field="signup-first">
+          <label for="signup-first">First name</label>
+          <input id="signup-first" data-rule="text" autocomplete="given-name" aria-describedby="signup-first-err" />
+          <p class="field__error" id="signup-first-err" data-error></p>
+        </div>
+        <div class="field" data-field="signup-last">
+          <label for="signup-last">Last name</label>
+          <input id="signup-last" data-rule="text" autocomplete="family-name" aria-describedby="signup-last-err" />
+          <p class="field__error" id="signup-last-err" data-error></p>
+        </div>
+      </div>
+      <div class="field" data-field="signup-email">
+        <label for="signup-email">Email</label>
+        <input
+          id="signup-email"
+          type="email"
+          data-rule="email"
+          autocomplete="email"
+          placeholder="you@gmail.com"
+          aria-describedby="signup-email-err"
+        />
+        <p class="field__error" id="signup-email-err" data-error></p>
+      </div>
+      <div class="field" data-field="signup-phone">
+        <label for="signup-phone">Phone number</label>
+        <input
+          id="signup-phone"
+          type="tel"
+          data-rule="phone"
+          autocomplete="tel"
+          placeholder="+1 555 000-0000"
+          aria-describedby="signup-phone-err"
+        />
+        <p class="field__error" id="signup-phone-err" data-error></p>
+      </div>
+      <div class="field" data-field="signup-password">
+        <label for="signup-password">Password</label>
+        <input
+          id="signup-password"
+          type="password"
+          data-rule="password"
+          autocomplete="new-password"
+          placeholder="••••••"
+          aria-describedby="signup-password-err"
+        />
+        <p class="field__error" id="signup-password-err" data-error></p>
+      </div>
+      <button type="submit" class="btn btn--solid auth-modal__submit">Sign up</button>
+      <button type="button" class="auth-modal__close" data-modal-close>Close</button>
+      <p class="auth-modal__switch">Already have an account? <button type="button" data-show-login>Log in</button></p>
+    </form>
+  </div>
+</div>
+
+<style>
+  /* `display: none` written out explicitly, not left to the `[hidden]`
+     attribute alone — on some mobile WebKit versions a `position: fixed` +
+     `backdrop-filter` element can stay in the touch hit-test layer even
+     while hidden that way, silently blocking taps on the page underneath. */
+  .auth-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(44, 53, 36, 0.4);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-4);
+    z-index: 100;
+  }
+
+  .auth-overlay:not([hidden]) {
+    display: flex;
+  }
+
+  .auth-modal {
+    background: var(--color-bg);
+    border-radius: var(--radius-card);
+    padding: var(--space-5) var(--space-4);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    width: 413px;
+    max-width: 100%;
+    max-height: calc(100vh - var(--space-5) * 2);
+    overflow-y: auto;
+  }
+
+  .auth-modal h2 {
+    font-size: var(--text-display-size);
+  }
+
+  .auth-modal__sub {
+    color: var(--color-text);
+  }
+
+  .auth-modal form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .auth-modal .field-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-3);
+  }
+
+  .auth-modal .field label {
+    display: block;
+    font-size: var(--text-caption-size);
+    font-weight: var(--weight-semibold);
+    color: var(--color-text-subtle);
+    margin-bottom: var(--space-1);
+  }
+
+  .auth-modal .field input {
+    width: 100%;
+    min-height: 44px;
+    padding-inline: var(--space-3);
+    border: 1px solid var(--color-line-strong);
+    border-radius: var(--radius-field);
+    background: var(--color-bg);
+    font-family: inherit;
+    font-size: var(--text-body-size);
+    color: var(--color-text);
+  }
+
+  /* Swap the browser's own focus outline (and the site's default 3px one —
+     too heavy on a text field you click into constantly) for just a
+     border-color change: still a clearly visible, high-contrast state,
+     without the boxy ring. */
+  .auth-modal .field input:focus {
+    outline: none;
+    border-color: var(--color-focus);
+  }
+
+  .auth-modal .field--invalid input {
+    border-color: var(--color-error);
+  }
+
+  .auth-modal .field__error {
+    display: none;
+    color: var(--color-error);
+    font-size: var(--text-caption-size);
+    margin: var(--space-1) 0 0;
+  }
+
+  .auth-modal .field--invalid .field__error {
+    display: block;
+  }
+
+  .error-summary {
+    background: var(--color-error-bg);
+    color: var(--color-error);
+    border-radius: var(--radius-field);
+    padding: var(--space-3);
+  }
+
+  .error-summary p {
+    font-weight: var(--weight-semibold);
+    margin: 0;
+  }
+
+  .error-summary ul {
+    list-style: none;
+    margin: var(--space-2) 0 0;
+    padding: 0;
+  }
+
+  .error-summary button {
+    background: none;
+    border: none;
+    color: var(--color-error);
+    text-decoration: underline;
+    padding: var(--space-1) 0;
+  }
+
+  .auth-modal__link {
+    display: block;
+    background: none;
+    border: none;
+    color: var(--color-text-subtle);
+    text-decoration: underline;
+    text-align: right;
+    width: 100%;
+  }
+
+  .auth-modal__switch {
+    text-align: center;
+  }
+
+  .auth-modal__switch button {
+    background: none;
+    border: none;
+    color: var(--color-accent-text);
+    font-weight: var(--weight-semibold);
+    text-decoration: underline;
+  }
+
+  .auth-modal__submit {
+    width: 100%;
+  }
+
+  .auth-modal__close {
+    display: block;
+    width: 100%;
+    text-align: center;
+    background: none;
+    border: none;
+    color: var(--color-text-subtle);
+    min-height: 44px;
+  }
+</style>

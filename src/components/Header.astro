@@ -1,0 +1,336 @@
+---
+// Site header. Three variants per Figma (reference/figma/components/header*.png,
+// and the checkout / my-bookings / profile frames):
+//   "default"  — logo, search pill, account avatar + menu (home, catalog, tour page, 404)
+//   "checkout" — logo, "Secure payment" (desktop) / account avatar + menu (mobile), no search
+//   "account"  — logo, "Back" link, no search, no avatar (My bookings, Profile)
+// The search pill is a static link to /tours for now; it becomes the real search
+// sheet/dropdown when search and filters are built (see CLAUDE.md "How to work").
+// The account menu itself (login state, dropdown) is wired by src/scripts/auth-ui.js.
+import desktopLogo from '../assets/logo/desktop-logo.svg';
+import mobileLogo from '../assets/logo/mobil-logo.svg';
+import userIcon from '../assets/icons/user-circle-32.svg';
+import lockIcon from '../assets/icons/lock-24.svg';
+import backIcon from '../assets/icons/arrow-left-accent-32.svg';
+import SearchWidget from './SearchWidget.astro';
+
+interface Props {
+  variant?: 'default' | 'checkout' | 'account';
+  mobileSearch?: boolean;
+  backHref?: string;
+}
+
+const { variant = 'default', mobileSearch = true, backHref = '/' } = Astro.props;
+const path = Astro.url.pathname;
+---
+
+<header class="site-header" data-variant={variant}>
+  <div class="site-header__bar container">
+    <a href="/" class="site-header__logo" aria-label="Wanderloop home">
+      <img
+        class="site-header__logo-img site-header__logo-img--desktop"
+        src={desktopLogo.src}
+        alt="Wanderloop"
+        width="160"
+        height="32"
+      />
+      <img
+        class="site-header__logo-img site-header__logo-img--mobile"
+        src={mobileLogo.src}
+        alt="Wanderloop"
+        width="90"
+        height="17"
+      />
+    </a>
+
+    {
+      variant === 'default' && (
+        <>
+          <SearchWidget hideMobileTrigger={!mobileSearch} />
+          <div class="account-menu" data-account-menu>
+            <button type="button" class="account-menu__trigger" data-account-trigger aria-haspopup="true" aria-expanded="false">
+              <span class="visually-hidden">Account menu</span>
+              <img src={userIcon.src} alt="" width="32" height="32" data-account-avatar-icon />
+              <span class="account-menu__initials" data-account-initials hidden />
+            </button>
+            <div class="account-menu__panel" data-account-panel hidden>
+              <div data-account-signed-out>
+                <button type="button" class="account-menu__item account-menu__item--highlight" data-open-login>
+                  Log in
+                </button>
+                <button type="button" class="account-menu__item" data-open-signup>Sign up</button>
+              </div>
+              <div data-account-signed-in hidden>
+                <p class="account-menu__name" data-account-name />
+                <p class="account-menu__email" data-account-email />
+                <hr class="account-menu__divider" />
+                <a href="/account/bookings" class={`account-menu__item${path.startsWith('/account/bookings') ? ' account-menu__item--highlight' : ''}`}>
+                  My bookings
+                </a>
+                <a href="/account/profile" class={`account-menu__item${path.startsWith('/account/profile') ? ' account-menu__item--highlight' : ''}`}>
+                  Profile
+                </a>
+                <button type="button" class="account-menu__item" data-logout-btn>Log out</button>
+              </div>
+              <hr class="account-menu__divider" />
+              <div class="account-menu__row">
+                <span>Language</span><span class="account-menu__row-value">English</span>
+              </div>
+              <div class="account-menu__row">
+                <span>Currency</span><span class="account-menu__row-value">USD</span>
+              </div>
+              <div class="account-menu__row">
+                <span>Help</span>
+              </div>
+            </div>
+          </div>
+        </>
+      )
+    }
+
+    {
+      variant === 'checkout' && (
+        <>
+          <p class="site-header__secure">
+            <img src={lockIcon.src} alt="" width="20" height="20" />
+            Secure payment
+          </p>
+          <div class="account-menu site-header__account--mobile-only" data-account-menu>
+            <button type="button" class="account-menu__trigger" data-account-trigger aria-haspopup="true" aria-expanded="false">
+              <span class="visually-hidden">Account menu</span>
+              <img src={userIcon.src} alt="" width="32" height="32" data-account-avatar-icon />
+              <span class="account-menu__initials" data-account-initials hidden />
+            </button>
+            <div class="account-menu__panel" data-account-panel hidden>
+              <div data-account-signed-out>
+                <button type="button" class="account-menu__item account-menu__item--highlight" data-open-login>
+                  Log in
+                </button>
+                <button type="button" class="account-menu__item" data-open-signup>Sign up</button>
+              </div>
+              <div data-account-signed-in hidden>
+                <p class="account-menu__name" data-account-name />
+                <p class="account-menu__email" data-account-email />
+                <hr class="account-menu__divider" />
+                <a href="/account/bookings" class="account-menu__item">My bookings</a>
+                <a href="/account/profile" class="account-menu__item">Profile</a>
+                <button type="button" class="account-menu__item" data-logout-btn>Log out</button>
+              </div>
+              <hr class="account-menu__divider" />
+              <div class="account-menu__row">
+                <span>Language</span><span class="account-menu__row-value">English</span>
+              </div>
+              <div class="account-menu__row">
+                <span>Currency</span><span class="account-menu__row-value">USD</span>
+              </div>
+              <div class="account-menu__row">
+                <span>Help</span>
+              </div>
+            </div>
+          </div>
+        </>
+      )
+    }
+
+    {
+      variant === 'account' && (
+        <a href={backHref} class="site-header__back" data-back-link>
+          <img src={backIcon.src} alt="" width="24" height="24" />
+          Back
+        </a>
+      )
+    }
+  </div>
+</header>
+
+<script>
+  // "Back" goes to the previous page when there is one in this site's history,
+  // otherwise falls back to the link's own href (e.g. home).
+  document.querySelectorAll('[data-back-link]').forEach((link) => {
+    link.addEventListener('click', (event) => {
+      if (window.history.length > 1 && document.referrer) {
+        event.preventDefault();
+        window.history.back();
+      }
+    });
+  });
+</script>
+
+<style>
+  .site-header {
+    background: var(--color-bg);
+  }
+
+  .site-header__bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+    /* 20px above and below whatever's tallest — the collapsed pill or the
+       taller expanded search bar — so the search never sits flush against
+       the top of the page when it opens. */
+    padding-block: 20px;
+  }
+
+  .site-header__logo {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+  }
+
+  .site-header__logo-img--desktop {
+    display: none;
+  }
+
+  /* Checkout: secure payment (desktop) vs account icon (mobile) */
+  .site-header__secure {
+    display: none;
+    align-items: center;
+    gap: var(--space-2);
+    color: var(--color-text-subtle);
+    margin: 0;
+    white-space: nowrap;
+  }
+
+  /* Account: back link */
+  .site-header__back {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+    color: var(--color-accent-text);
+    font-weight: var(--weight-semibold);
+    text-decoration: none;
+    flex-shrink: 0;
+  }
+
+  /* Account menu (used by both the default and checkout-mobile avatar) */
+  .account-menu {
+    position: relative;
+    flex-shrink: 0;
+  }
+
+  .account-menu__trigger {
+    display: inline-flex;
+    border: none;
+    background: none;
+    padding: 0;
+    border-radius: var(--radius-pill);
+  }
+
+  .account-menu__initials {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--color-accent-strong);
+    color: var(--color-on-accent);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--text-caption-size);
+    font-weight: var(--weight-bold);
+  }
+
+  .account-menu__panel {
+    position: absolute;
+    top: calc(100% + var(--space-2));
+    right: 0;
+    width: 300px;
+    background: var(--color-bg);
+    border: none;
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-popover);
+    padding: var(--space-4);
+    z-index: 50;
+  }
+
+  .account-menu__name {
+    font-weight: var(--weight-semibold);
+    margin: 0;
+  }
+
+  .account-menu__email {
+    color: var(--color-text-subtle);
+    font-size: var(--text-caption-size);
+    margin: 0;
+  }
+
+  .account-menu__divider {
+    border: none;
+    border-top: 1px solid var(--color-line);
+    margin: var(--space-2) 0;
+  }
+
+  .account-menu__item {
+    display: block;
+    width: 100%;
+    text-align: left;
+    background: none;
+    border: none;
+    padding: var(--space-2) var(--space-4);
+    border-radius: var(--radius-field-lg);
+    color: var(--color-text);
+    text-decoration: none;
+    min-height: 44px;
+  }
+
+  .account-menu__item:hover {
+    background: var(--color-surface);
+  }
+
+  .account-menu__item--highlight {
+    color: var(--color-accent-text);
+    font-weight: var(--weight-semibold);
+  }
+
+  /* The beige pill is a hover/focus state, not a permanent background —
+     per the Figma reference, "Log in" only fills in when you're pointed
+     at it. */
+  .account-menu__item--highlight:hover,
+  .account-menu__item--highlight:focus-visible {
+    background: var(--color-accent-soft);
+  }
+
+  .account-menu__row {
+    display: flex;
+    justify-content: space-between;
+    padding: var(--space-2) var(--space-4);
+    min-height: 44px;
+    align-items: center;
+  }
+
+  .account-menu__row-value {
+    color: var(--color-accent-text);
+  }
+
+  /* Mobile: the search pill gets its own full-width row below the logo —
+     in Figma it's never squeezed in next to the logo and avatar. */
+  @media (max-width: 767.98px) {
+    .site-header__bar {
+      flex-wrap: wrap;
+      row-gap: var(--space-3);
+    }
+
+    .site-header__bar :global(.search-widget) {
+      order: 3;
+      flex-basis: 100%;
+    }
+  }
+
+  @media (min-width: 768px) {
+    .site-header__logo-img--desktop {
+      display: block;
+    }
+
+    .site-header__logo-img--mobile {
+      display: none;
+    }
+
+    .site-header__secure {
+      display: flex;
+    }
+
+    .site-header__account--mobile-only {
+      display: none;
+    }
+  }
+</style>

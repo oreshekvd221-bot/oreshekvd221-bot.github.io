@@ -1,0 +1,221 @@
+---
+// Sticky booking widget on the tour page. Layout: reference/figma/desktop/02-tour-page.png
+// (right column) and mobile/02-tour-page.png (inline block, same content).
+// Business rules from CLAUDE.md: a departure only fits if spotsLeft >= adults + children;
+// child price is round(adultPrice * 0.5) — already precomputed as priceChild in tours.json.
+import plusIcon from '../assets/icons/plus-circle-24.svg';
+import minusIcon from '../assets/icons/minus-circle-24.svg';
+import { formatPrice } from '../scripts/tours.js';
+
+interface Props {
+  tour: any;
+}
+
+const { tour } = Astro.props;
+---
+
+<aside
+  class="booking-card"
+  data-booking-card
+  data-slug={tour.slug}
+  data-price-adult={tour.priceAdult}
+  data-price-child={tour.priceChild}
+>
+  <h2 class="visually-hidden">Book this trip</h2>
+  <p class="booking-card__price"><strong>{formatPrice(tour.priceAdult)}</strong> <span>/ adult</span></p>
+
+  <h3 class="booking-card__heading">Departure date</h3>
+  <div class="booking-card__departures" role="group" aria-label="Departure date">
+    {
+      tour.departures.map((d: any) => (
+        <button
+          type="button"
+          class="departure-option"
+          data-departure-option
+          data-start={d.start}
+          data-spots={d.spotsLeft}
+          disabled={d.spotsLeft === 0}
+          aria-pressed="false"
+        >
+          <span>{d.label}</span>
+          <span class="departure-option__chip">{d.chip}</span>
+        </button>
+      ))
+    }
+  </div>
+
+  <p class="booking-card__message" data-booking-sold-out hidden>
+    All upcoming departures are full right now.
+  </p>
+
+  <div data-booking-controls>
+    <h3 class="booking-card__heading">Travelers</h3>
+
+    <div class="traveler-row">
+      <div>
+        <p>Adults</p>
+        <p class="traveler-row__hint">age 6+ · {formatPrice(tour.priceAdult)}</p>
+      </div>
+      <div class="stepper">
+        <button type="button" data-traveler-decrement="adults" aria-label="Fewer adults">
+          <img src={minusIcon.src} alt="" width="24" height="24" />
+        </button>
+        <span data-traveler-count="adults">1</span>
+        <button type="button" data-traveler-increment="adults" aria-label="More adults">
+          <img src={plusIcon.src} alt="" width="24" height="24" />
+        </button>
+      </div>
+    </div>
+
+    <div class="traveler-row">
+      <div>
+        <p>Children</p>
+        <p class="traveler-row__hint">under 6 · {formatPrice(tour.priceChild)} · also takes a spot</p>
+      </div>
+      <div class="stepper">
+        <button type="button" data-traveler-decrement="children" aria-label="Fewer children">
+          <img src={minusIcon.src} alt="" width="24" height="24" />
+        </button>
+        <span data-traveler-count="children">0</span>
+        <button type="button" data-traveler-increment="children" aria-label="More children">
+          <img src={plusIcon.src} alt="" width="24" height="24" />
+        </button>
+      </div>
+    </div>
+
+    <p class="booking-card__hint" data-capacity-hint role="status"></p>
+
+    <div class="booking-card__total">
+      <span data-total-label>Total for 1 guest</span>
+      <strong data-total-price>{formatPrice(tour.priceAdult)}</strong>
+    </div>
+
+    <a href={`/checkout?tour=${tour.slug}`} class="btn btn--solid booking-card__book" data-book-link>
+      Book now
+    </a>
+  </div>
+</aside>
+
+<script src="../scripts/booking-card.js"></script>
+
+<style>
+  .booking-card {
+    background: var(--color-bg);
+    border: none;
+    box-shadow: var(--shadow-card);
+    border-radius: var(--radius-card);
+    padding: var(--space-5) var(--space-4) var(--space-4);
+  }
+
+  .booking-card__price span {
+    color: var(--color-text-subtle);
+  }
+
+  .booking-card__heading {
+    font-size: var(--text-h3-size);
+    font-weight: var(--text-h3-weight);
+    margin-top: var(--space-4);
+    margin-bottom: var(--space-2);
+  }
+
+  .booking-card__departures {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+
+  .departure-option {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--space-2);
+    border: 1px solid var(--color-line-strong);
+    border-radius: var(--radius-field);
+    background: var(--color-bg);
+    color: var(--color-text);
+    font-weight: var(--weight-semibold);
+    padding: var(--space-3);
+    min-height: 44px;
+    text-align: left;
+  }
+
+  .departure-option[aria-pressed='true'] {
+    border-color: var(--color-accent);
+    background: var(--color-accent-soft);
+    color: var(--color-accent-text);
+  }
+
+  .departure-option:disabled {
+    opacity: 0.5;
+  }
+
+  .departure-option__chip {
+    color: var(--color-text-subtle);
+    font-size: var(--text-caption-size);
+    flex-shrink: 0;
+  }
+
+  .booking-card__message {
+    margin-top: var(--space-3);
+    color: var(--color-error);
+  }
+
+  .traveler-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--space-3);
+    padding-block: var(--space-2);
+    border-bottom: 1px solid var(--color-line);
+  }
+
+  .traveler-row__hint {
+    color: var(--color-text-subtle);
+    font-size: var(--text-caption-size);
+  }
+
+  .stepper {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    flex-shrink: 0;
+  }
+
+  .stepper button {
+    border: none;
+    background: none;
+    padding: 0;
+    display: inline-flex;
+    min-width: 44px;
+    min-height: 44px;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .stepper button:disabled {
+    opacity: 0.4;
+  }
+
+  .stepper span {
+    min-width: 1.5em;
+    text-align: center;
+  }
+
+  .booking-card__hint {
+    color: var(--color-text-subtle);
+    font-size: var(--text-caption-size);
+    margin-top: var(--space-3);
+  }
+
+  .booking-card__total {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-top: var(--space-3);
+  }
+
+  .booking-card__book {
+    width: 100%;
+    margin-top: var(--space-4);
+  }
+</style>

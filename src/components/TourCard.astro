@@ -1,0 +1,198 @@
+---
+// Reused on the home page and /tours. Layout and states: reference/figma/components/tour-card-desktop.png
+// and tour-card-mobil.png (the two are the same design, just scaled).
+import { Image } from 'astro:assets';
+import { nearestDeparture, formatPrice } from '../scripts/tours.js';
+
+interface Props {
+  tour: any;
+  cover: ImageMetadata | null;
+  // Catalog/home cards show Details/Book now on hover; some places (the
+  // tour page's "Similar trips") don't show them at all.
+  hideActions?: boolean;
+}
+
+const { tour, cover, hideActions = false } = Astro.props;
+const departure = nearestDeparture(tour);
+
+// The chip is only shown for 3 spots left or fewer — computed here, not
+// inline in the template, because Astro's compiler misparses a bare `<=`
+// right after `{` as the start of a tag.
+const showChip = departure.spotsLeft <= 3;
+const chipModifier = departure.spotsLeft === 0 ? 'unavailable' : 'scarce';
+---
+
+<article
+  class="tour-card"
+  data-tour-card
+  data-country={tour.country}
+  data-type={tour.type}
+  data-difficulty={tour.difficulty}
+  data-duration={tour.durationDays}
+  data-price={tour.priceAdult}
+  data-spots={departure.spotsLeft}
+  data-month={departure.start.slice(0, 7)}
+>
+  <div class="tour-card__media">
+    {
+      cover && (
+        <Image
+          src={cover}
+          alt={`${tour.name} — ${tour.place}`}
+          width={640}
+          height={420}
+          loading="lazy"
+        />
+      )
+    }
+    {
+      showChip && (
+        <span class={`tour-card__chip tour-card__chip--${chipModifier}`}>{departure.chip}</span>
+      )
+    }
+  </div>
+  <div class="tour-card__body">
+    <p class="tour-card__place">{tour.place}</p>
+    <h3 class="tour-card__name"><a href={`/tours/${tour.slug}`}>{tour.name}</a></h3>
+    <p class="tour-card__group">group of up to {tour.maxGroup}</p>
+    <p class="tour-card__price"><strong>{formatPrice(tour.priceAdult)}</strong> <span>/ adult</span></p>
+    {
+      !hideActions && (
+        <div class="tour-card__actions">
+          <a href={`/tours/${tour.slug}`} class="btn btn--ghost">Details</a>
+          <a href={`/checkout?tour=${tour.slug}&departure=${departure.start}`} class="btn btn--solid">Book now</a>
+        </div>
+      )
+    }
+  </div>
+</article>
+
+<style>
+  .tour-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    background: var(--color-bg);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-card);
+  }
+
+  .tour-card__media {
+    position: relative;
+    /* padding-top percentage, not `aspect-ratio` — inside a flex column
+       whose row gets stretched taller by a sibling card's longer (wrapped)
+       name, `aspect-ratio` on a flex item doesn't reliably hold here; this
+       classic trick (padding is a % of the box's own *width*) does. */
+    padding-top: calc(228 / 437 * 100%);
+    flex-shrink: 0;
+    /* Rounds and clips just the photo, not the whole card — clipping the
+       whole card (the old approach) also clipped the actions' hover
+       shadow into a hard rectangle. */
+    border-radius: var(--radius-card) var(--radius-card) 0 0;
+    overflow: hidden;
+  }
+
+  .tour-card__media :global(img) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .tour-card__chip {
+    position: absolute;
+    top: var(--space-3);
+    left: var(--space-3);
+    padding: var(--space-1) var(--space-3);
+    border-radius: var(--radius-pill);
+    background: rgba(255, 253, 247, 0.92);
+    font-size: var(--text-caption-size);
+    font-weight: var(--weight-semibold);
+  }
+
+  .tour-card__chip--scarce,
+  .tour-card__chip--unavailable {
+    color: var(--color-scarce-text);
+  }
+
+  .tour-card__body {
+    flex: 1;
+    padding: var(--space-5) var(--space-4);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    /* The bottom two corners of the card's rounded shape — matches
+       .tour-card__media rounding the top two. */
+    border-radius: 0 0 var(--radius-card) var(--radius-card);
+  }
+
+  .tour-card__place {
+    color: var(--color-text-subtle);
+    font-size: var(--text-caption-size);
+  }
+
+  .tour-card__name {
+    font-size: var(--text-h3-size);
+    font-weight: var(--text-h3-weight);
+  }
+
+  .tour-card__name a {
+    text-decoration: none;
+  }
+
+  .tour-card__name a::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+  }
+
+  .tour-card__group {
+    color: var(--color-text-subtle);
+  }
+
+  .tour-card__price span {
+    color: var(--color-text-subtle);
+    font-weight: var(--weight-regular);
+  }
+
+  .tour-card__actions {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    gap: var(--space-2);
+    margin-top: var(--space-3);
+  }
+
+  /* Hover-to-reveal is a desktop (pointer) pattern — touch screens have no
+     hover, so the buttons stay visible on mobile (same as tapping the card).
+     On desktop the buttons are collapsed out of the layout (not just faded
+     out), so the card is shorter by default and grows from the bottom on
+     hover/focus — which, since cards sit in a grid, pushes the row (and
+     whatever's below it) down instead of just overlaying the buttons. */
+  @media (min-width: 768px) {
+    .tour-card__actions {
+      max-height: 0;
+      margin-top: 0;
+      opacity: 0;
+      /* No `overflow: hidden` here — it would clip the buttons' own hover
+         shadow into a hard rectangle. `max-height: 0` already removes the
+         layout space and `pointer-events: none` already blocks clicks, so
+         nothing actually needs clipping while collapsed. */
+      pointer-events: none;
+      transition: max-height 0.25s ease, margin-top 0.25s ease, opacity 0.2s ease;
+    }
+
+    .tour-card:hover .tour-card__actions,
+    .tour-card:focus-within .tour-card__actions {
+      max-height: 48px;
+      margin-top: var(--space-3);
+      opacity: 1;
+      pointer-events: auto;
+    }
+  }
+
+  .tour-card__actions .btn {
+    flex: 1;
+  }
+</style>

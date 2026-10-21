@@ -1,0 +1,137 @@
+---
+// Profile is mocked (localStorage, src/scripts/auth.js) and gated behind
+// sign-in, same approach as /account/bookings. Design: reference/figma/profile.png.
+import Layout from '../../layouts/Layout.astro';
+---
+
+<Layout title="Profile" headerVariant="account" headerBackHref="/">
+  <section class="container profile-page" data-profile-root>
+    <div data-signed-out-prompt hidden>
+      <h1>Profile</h1>
+      <p class="profile-page__prompt-text">Sign in to see your profile.</p>
+      <button type="button" class="btn btn--solid" data-prompt-login>Log in</button>
+    </div>
+
+    <div data-profile-content hidden>
+      <h1>Profile</h1>
+      <div class="profile-page__identity">
+        <span class="profile-page__avatar" data-profile-initials aria-hidden="true" />
+        <div>
+          <p class="profile-page__name" data-profile-name></p>
+          <p class="profile-page__email-sub" data-profile-email-sub></p>
+        </div>
+      </div>
+
+      <form data-profile-form>
+        <div class="field-row">
+          <div class="field">
+            <label for="profile-first">First name</label>
+            <input id="profile-first" autocomplete="given-name" />
+          </div>
+          <div class="field">
+            <label for="profile-last">Last name</label>
+            <input id="profile-last" autocomplete="family-name" />
+          </div>
+        </div>
+        <div class="field">
+          <label for="profile-email">Email</label>
+          <input id="profile-email" type="email" autocomplete="email" />
+        </div>
+        <div class="field">
+          <label for="profile-phone">Phone number</label>
+          <input id="profile-phone" type="tel" autocomplete="tel" />
+        </div>
+        <button type="submit" class="btn btn--solid profile-page__save">Save changes</button>
+      </form>
+    </div>
+  </section>
+</Layout>
+
+<script src="../../scripts/account-profile.js"></script>
+
+<style>
+  .profile-page {
+    padding-block: var(--space-4) var(--space-6);
+    max-width: 480px;
+  }
+
+  .profile-page__prompt-text {
+    color: var(--color-text-subtle);
+    margin-top: var(--space-2);
+    margin-bottom: var(--space-4);
+  }
+
+  .profile-page__identity {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    margin: var(--space-4) 0 var(--space-5);
+  }
+
+  .profile-page__avatar {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: var(--color-accent-strong);
+    color: var(--color-on-accent);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: var(--weight-bold);
+    flex-shrink: 0;
+  }
+
+  .profile-page__name {
+    font-weight: var(--weight-semibold);
+  }
+
+  .profile-page__email-sub {
+    color: var(--color-text-subtle);
+    font-size: var(--text-caption-size);
+  }
+
+  .field-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-3);
+  }
+
+  /* Scoped to direct children of the form (Email, Phone number) — inside
+     .field-row the two fields are side-by-side grid items, not stacked, so
+     a bare `.field + .field` would (and did) wrongly push the second
+     column down. */
+  [data-profile-form] > .field-row + .field,
+  [data-profile-form] > .field + .field {
+    margin-top: var(--space-3);
+  }
+
+  .field label {
+    display: block;
+    font-size: var(--text-caption-size);
+    font-weight: var(--weight-semibold);
+    color: var(--color-text-subtle);
+    margin-bottom: var(--space-1);
+  }
+
+  .field input {
+    width: 100%;
+    min-height: 44px;
+    padding-inline: var(--space-3);
+    border: 1px solid var(--color-line-strong);
+    border-radius: var(--radius-field);
+    background: var(--color-bg);
+    font-family: inherit;
+    font-size: var(--text-body-size);
+    color: var(--color-text);
+  }
+
+  .field input:focus {
+    outline: 3px solid var(--color-focus);
+    outline-offset: 1px;
+  }
+
+  .profile-page__save {
+    width: 100%;
+    margin-top: var(--space-4);
+  }
+</style>

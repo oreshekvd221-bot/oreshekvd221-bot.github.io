@@ -1,0 +1,50 @@
+---
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import AuthModals from '../components/AuthModals.astro';
+import '../styles/tokens.css';
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+  description?: string;
+  headerVariant?: 'default' | 'checkout' | 'account';
+  headerMobileSearch?: boolean;
+  headerBackHref?: string;
+}
+
+const {
+  title,
+  description = 'Small-group tours with fixed departure dates.',
+  headerVariant = 'default',
+  headerMobileSearch = true,
+  headerBackHref = '/',
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title} · Wanderloop</title>
+    <meta name="description" content={description} />
+    {/* iOS Safari otherwise auto-styles text it detects as a phone number,
+       date or address (e.g. "6 Days" in a tour name) as a blue tappable
+       link, even where there's no <a> at all. */}
+    <meta name="format-detection" content="telephone=no, date=no, address=no, email=no" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  </head>
+  <body>
+    <a href="#main" class="skip-link">Skip to content</a>
+    <Header variant={headerVariant} mobileSearch={headerMobileSearch} backHref={headerBackHref} />
+    <main id="main">
+      <slot />
+    </main>
+    <Footer />
+    <AuthModals />
+    <div class="cursor-dot" data-cursor-dot aria-hidden="true"></div>
+    <script src="../scripts/auth-ui.js"></script>
+    <script src="../scripts/cursor.js"></script>
+  </body>
+</html>

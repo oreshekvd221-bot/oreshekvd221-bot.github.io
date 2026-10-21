@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Wanderloop — оформление брони</title>
+<style>
+  :root {
+    --text: #2C2013;
+    --muted: #8A7A63;
+    --bg: #F2ECDE;
+    --card-bg: #FBF6EC;
+    --accent: #C9663D;
+    --accent-dark: #B2552F;
+    --accent-green: #6E7B4E;
+    --accent-soft: rgba(201,102,61,0.10);
+    --line: #E4D9C4;
+    --scarce: #B8863B;
+    --scarce-bg: #F3E6C8;
+    --ok-green: #6B8F5A;
+    --ok-green-bg: #E4EBDD;
+    --unavailable-bg: #E9E1CE;
+    --unavailable-text: #B3A88F;
+    --error: #B3392B;
+    --error-bg: #F7E3DE;
+  }
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  body {
+    margin: 0;
+    font-family: -apple-system, "Segoe UI", Inter, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+  }
+  button { font-family: inherit; }
+  a { color: var(--accent); }
+
+  /* ---------- simplified header ---------- */
+  .topbar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 40px;
+    background: var(--card-bg);
+    box-shadow: 0 2px 10px rgba(44,32,19,0.06);
+  }
+  .logo { font-size: 18px; font-weight: 700; text-decoration: none; }
+  .logo .wander { color: var(--accent); }
+  .logo .loop { color: var(--accent-green); }
+  .secure { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); }
+  .secure svg { width: 14px; height: 14px; stroke: var(--accent-green); }
+  .back-link { font-size: 13px; color: var(--muted); text-decoration: none; }
+  .back-link:hover { color: var(--accent); }
+
+  .page { max-width: 1120px; margin: 0 auto; padding: 28px 40px 60px; }
+  .page-head { margin-bottom: 24px; }
+  .page-head h1 { font-size: 28px; margin: 8px 0 4px; }
+  .page-head p { margin: 0; font-size: 13px; color: var(--muted); }
+
+  .grid { display: grid; grid-template-columns: minmax(0, 1fr) 400px; gap: 48px; align-items: start; }
+
+  /* ---------- blocks ---------- */
+  .block {
+    background: var(--card-bg); border: 1px solid var(--line); border-radius: 18px;
+    padding: 22px 24px; margin-bottom: 16px;
+  }
+  .block-head { display: flex; align-items: center; gap: 12px; }
+  .block-head h2 { font-size: 17px; margin: 0; flex: 1; }
+  .num {
+    flex: 0 0 auto; width: 30px; height: 30px; border-radius: 50%;
+    background: var(--accent); color: #fff; font-size: 13px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .num .ck { display: none; }
+  .edit-btn {
+    display: none; background: none; border: none; color: var(--accent); font-size: 13px; font-weight: 600;
+    cursor: pointer; padding: 4px 0; text-decoration: underline; text-underline-offset: 3px;
+  }
+  .block-summary { display: none; margin: 10px 0 0 42px; font-size: 13px; color: var(--muted); line-height: 1.6; }
+  .block-body { margin-top: 18px; }
+
+  .block[data-state="done"] .block-body { display: none; }
+  .block[data-state="done"] .block-summary { display: block; }
+  .block[data-state="done"] .edit-btn { display: inline; }
+  .block[data-state="done"] .num { background: var(--ok-green); }
+  .block[data-state="done"] .num .n { display: none; }
+  .block[data-state="done"] .num .ck { display: block; }
+
+  .block[data-state="locked"] { opacity: 0.6; }
+  .block[data-state="locked"] .block-body { display: none; }
+  .block[data-state="locked"] .block-summary { display: block; }
+  .block[data-state="locked"] .num { background: var(--unavailable-text); }
+
+  /* ---------- form fields ---------- */
+  .traveler + .traveler { margin-top: 22px; padding-top: 20px; border-top: 1px solid var(--line); }
+  .traveler-title { font-size: 13px; font-weight: 700; margin-bottom: 2px; }
+  .traveler-note { font-size: 12px; color: var(--muted); margin-bottom: 12px; }
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .row + .row, .field + .row, .row + .field { margin-top: 12px; }
+  .field label { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 0.03em; font-weight: 600; color: var(--muted); margin-bottom: 6px; }
+  .field input, .field select {
+    width: 100%; height: 46px; padding: 0 14px; border: 1px solid var(--line); border-radius: 12px;
+    background: #fff; font-size: 15px; color: var(--text); font-family: inherit; outline: none;
+    transition: border-color .12s, box-shadow .12s;
+  }
+  .field input::placeholder { color: var(--unavailable-text); }
+  .field input:focus, .field select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+  .field.invalid input, .field.invalid select { border-color: var(--error); background: #fffaf9; }
+  .field .err { display: none; font-size: 12px; color: var(--error); margin-top: 5px; }
+  .field.invalid .err { display: block; }
+
+  .info-note {
+    display: flex; gap: 10px; align-items: flex-start; background: var(--accent-soft); border-radius: 12px;
+    padding: 12px 14px; font-size: 12.5px; line-height: 1.5; margin-top: 18px;
+  }
+  .info-note svg { flex: 0 0 auto; width: 16px; height: 16px; margin-top: 1px; stroke: var(--accent); }
+
+  .btn-primary {
+    width: 100%; height: 50px; border: none; border-radius: 14px; background: var(--accent); color: #fff;
+    font-size: 15px; font-weight: 700; cursor: pointer; margin-top: 20px; transition: background .12s;
+  }
+  .btn-primary:hover:not(:disabled) { background: var(--accent-dark); }
+  .btn-primary:disabled { opacity: 0.6; cursor: wait; }
+  .btn-secondary {
+    height: 46px; padding: 0 20px; border: 1px solid var(--line); border-radius: 14px; background: transparent;
+    color: var(--text); font-size: 14px; font-weight: 600; cursor: pointer;
+  }
+  .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* ---------- payment ---------- */
+  .plan-list { display: flex; flex-direction: column; gap: 10px; }
+  .plan {
+    display: flex; gap: 12px; align-items: flex-start; border: 1px solid var(--line); border-radius: 14px;
+    padding: 14px 16px; cursor: pointer; background: #fff;
+  }
+  .plan:has(input:checked) { border-color: var(--accent); background: var(--accent-soft); }
+  .plan input { margin: 3px 0 0; accent-color: var(--accent); }
+  .plan-main { flex: 1; }
+  .plan-title { font-size: 14px; font-weight: 700; display: flex; justify-content: space-between; gap: 12px; }
+  .plan-sub { font-size: 12px; color: var(--muted); margin-top: 3px; line-height: 1.5; }
+
+  .express { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
+  .express button {
+    height: 46px; border: none; border-radius: 12px; background: #1E1610; color: #fff;
+    font-size: 14px; font-weight: 600; cursor: pointer;
+  }
+  .express button:hover { background: #3a2c20; }
+  .or { display: flex; align-items: center; gap: 12px; margin: 18px 0; font-size: 12px; color: var(--muted); }
+  .or::before, .or::after { content: ''; flex: 1; height: 1px; background: var(--line); }
+
+  .alert {
+    background: var(--error-bg); color: var(--error); border-radius: 12px; padding: 12px 14px;
+    font-size: 13px; line-height: 1.5; margin-bottom: 16px; border: 1px solid #ebc4bb;
+  }
+  .assure { font-size: 12px; color: var(--muted); text-align: center; margin-top: 12px; line-height: 1.6; }
+  .assure b { color: var(--ok-green); font-weight: 600; }
+
+  /* ---------- summary ---------- */
+  .summary {
+    position: sticky; top: 24px; background: var(--card-bg); border: 1px solid var(--line);
+    border-radius: 18px; padding: 20px; box-shadow: 0 4px 18px rgba(44,32,19,0.06);
+  }
+  .hold {
+    display: flex; align-items: center; gap: 10px; background: var(--ok-green-bg); color: #44603a;
+    border-radius: 12px; padding: 10px 12px; font-size: 12.5px; margin-bottom: 16px;
+  }
+  .hold .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--ok-green); flex: 0 0 auto; }
+  .hold .t { margin-left: auto; font-weight: 700; font-variant-numeric: tabular-nums; font-size: 14px; }
+  .hold.low { background: var(--scarce-bg); color: #7a5a1f; }
+  .hold.low .dot { background: var(--scarce); animation: pulse 1s infinite; }
+  @keyframes pulse { 50% { opacity: 0.3; } }
+  .extend {
+    display: block; width: 100%; min-height: 44px; margin: -6px 0 16px; padding: 8px 12px;
+    background: transparent; color: var(--text); border: 1px solid var(--accent); border-radius: 12px;
+    font: inherit; font-size: 13px; font-weight: 600; cursor: pointer;
+  }
+  .extend[hidden] { display: none; }
+  .extend:hover { background: var(--card-bg); }
+
+  .tour-mini { display: flex; gap: 12px; align-items: center; margin-bottom: 14px; }
+  .tour-mini .thumb { width: 64px; height: 64px; border-radius: 12px; background: linear-gradient(135deg, var(--accent-green), var(--line)); flex: 0 0 auto; }
+  .tour-mini .place { font-size: 11px; color: var(--muted); }
+  .tour-mini .tname { font-size: 15px; font-weight: 700; line-height: 1.3; }
+  .facts { border-top: 1px solid var(--line); padding-top: 12px; margin: 0 0 12px; font-size: 13px; }
+  .facts div { display: flex; justify-content: space-between; padding: 4px 0; gap: 12px; }
+  .facts dt { color: var(--muted); }
+  .facts dd { margin: 0; font-weight: 600; text-align: right; }
+  .change-link { font-size: 12px; }
+
+  .lines { border-top: 1px solid var(--line); padding-top: 12px; font-size: 13px; }
+  .lines .l { display: flex; justify-content: space-between; padding: 4px 0; }
+  .lines .l.disc { color: var(--ok-green); font-weight: 600; }
+  .promo-toggle { background: none; border: none; padding: 6px 0 0; font-size: 12.5px; color: var(--accent); cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
+  .promo-box { display: flex; gap: 8px; margin-top: 8px; }
+  .promo-box input { flex: 1; height: 40px; border: 1px solid var(--line); border-radius: 10px; padding: 0 12px; font-size: 14px; text-transform: uppercase; background: #fff; outline: none; min-width: 0; }
+  .promo-box input:focus { border-color: var(--accent); }
+  .promo-box button { height: 40px; padding: 0 14px; border-radius: 10px; border: 1px solid var(--accent); background: transparent; color: var(--accent); font-weight: 600; cursor: pointer; }
+  .promo-msg { font-size: 12px; margin-top: 6px; }
+  .promo-msg.err { color: var(--error); }
+  .promo-msg.ok { color: var(--ok-green); }
+
+  .totals { border-top: 1px solid var(--line); margin-top: 12px; padding-top: 12px; }
+  .total-main { display: flex; justify-content: space-between; align-items: baseline; font-size: 15px; font-weight: 700; }
+  .total-main .amt { font-size: 22px; }
+  .total-later { display: flex; justify-content: space-between; font-size: 12.5px; color: var(--muted); margin-top: 6px; }
+  .trust { margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--line); font-size: 12px; color: var(--muted); line-height: 1.6; }
+  .trust b { color: var(--ok-green); font-weight: 600; }
+
+  /* ---------- state screens ---------- */
+  .state-card {
+    max-width: 640px; margin: 20px auto 0; background: var(--card-bg); border: 1px solid var(--line);
+    border-radius: 20px; padding: 36px; text-align: center;
+  }
+  .state-icon { width: 56px; height: 56px; border-radius: 50%; margin: 0 auto 16px; display: flex; align-items: center; justify-content: center; }
+  .state-icon svg { width: 26px; height: 26px; }
+  .state-icon.warn { background: var(--scarce-bg); } .state-icon.warn svg { stroke: var(--scarce); }
+  .state-icon.ok { background: var(--ok-green-bg); } .state-icon.ok svg { stroke: var(--ok-green); }
+  .state-card h2 { font-size: 22px; margin: 0 0 8px; }
+  .state-card p { font-size: 14px; color: var(--muted); line-height: 1.6; margin: 0 0 20px; }
+  .state-actions { display: flex; flex-direction: column; gap: 10px; max-width: 360px; margin: 0 auto; }
+  .state-actions .btn-primary { margin-top: 0; }
+  .alt-date {
+    text-align: left; border: 1px solid var(--line); border-radius: 14px; padding: 12px 14px; margin: 0 auto 16px; max-width: 360px;
+    display: flex; justify-content: space-between; align-items: center; font-size: 13px; background: #fff;
+  }
+  .alt-date .s { font-size: 11px; color: var(--ok-green); }
+
+  .confirm-ref { display: inline-block; background: var(--accent-soft); color: var(--accent); font-weight: 700; padding: 6px 14px; border-radius: 999px; font-size: 13px; margin-bottom: 20px; letter-spacing: 0.02em; }
+  .next-steps { text-align: left; border-top: 1px solid var(--line); margin-top: 24px; padding-top: 20px; }
+  .next-steps h3 { font-size: 15px; margin: 0 0 12px; }
+  .step { display: flex; gap: 12px; padding: 8px 0; font-size: 13.5px; line-height: 1.5; }
+  .step .sn { flex: 0 0 auto; width: 24px; height: 24px; border-radius: 50%; background: var(--accent-soft); color: var(--accent); font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+  .step .sd { color: var(--muted); font-size: 12.5px; }
+  .confirm-actions { display: flex; gap: 10px; justify-content: center; margin-top: 24px; flex-wrap: wrap; }
+  .account-offer { text-align: left; background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 16px; margin-top: 24px; display: flex; gap: 14px; align-items: center; justify-content: space-between; }
+  .account-offer .at { font-size: 14px; font-weight: 700; }
+  .account-offer .ad { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+  /* ---------- demo panel (not part of the UI) ---------- */
+  .demo {
+    margin-top: 40px; border: 1.5px dashed var(--unavailable-text); border-radius: 14px; padding: 14px 16px;
+    font-size: 12px; color: var(--muted);
+  }
+  .demo b { color: var(--text); }
+  .demo-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; align-items: center; }
+  .demo button { height: 32px; padding: 0 12px; border: 1px solid var(--line); border-radius: 8px; background: #fff; font-size: 12px; cursor: pointer; color: var(--text); }
+  .demo button:hover { border-color: var(--accent); color: var(--accent); }
+  .demo label { display: flex; gap: 6px; align-items: center; cursor: pointer; }
+
+  .toast {
+    position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%) translateY(20px); opacity: 0;
+    background: #1E1610; color: #fff; padding: 12px 18px; border-radius: 12px; font-size: 13px;
+    transition: all .2s; pointer-events: none; z-index: 99;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  @media (max-width: 900px) {
+    .topbar { padding: 12px 16px; }
+    .page { padding: 20px 16px 40px; }
+    .grid { grid-template-columns: 1fr; gap: 20px; }
+    .summary { position: static; order: -1; }
+    .row { grid-template-columns: 1fr; }
+    .state-card { padding: 24px 18px; }
+    .account-offer { flex-direction: column; align-items: stretch; }
+  }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <a class="logo" href="wanderloop-tour-page.html"><span class="wander">Wander</span><span class="loop">loop</span></a>
+  <div class="secure">
+    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+    Безопасная оплата
+  </div>
+</header>
+
+<main class="page">
+
+  <!-- ====================== CHECKOUT ====================== -->
+  <div id="view-checkout">
+    <div class="page-head">
+      <a class="back-link" href="wanderloop-tour-page.html">← Назад к туру</a>
+      <h1>Оформление брони</h1>
+      <p>Займёт около 2 минут. Регистрация не нужна.</p>
+    </div>
+
+    <div class="grid">
+      <div class="left">
+
+        <!-- BLOCK 1 -->
+        <section class="block" id="block1" data-state="active" aria-labelledby="b1h">
+          <div class="block-head">
+            <span class="num"><span class="n">1</span><svg class="ck" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"/></svg></span>
+            <h2 id="b1h">Контакты и путешественники</h2>
+            <button class="edit-btn" type="button" id="edit1">Изменить</button>
+          </div>
+          <div class="block-summary" id="sum1"></div>
+          <div class="block-body" id="body1">
+            <div id="travelers"></div>
+            <div class="info-note">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16.5v.01"/></svg>
+              <span>Паспортные данные сейчас вводить не нужно: пришлём ссылку в письме, заполнить можно в течение 7 дней после брони.</span>
+            </div>
+            <button class="btn-primary" type="button" id="continue1">Продолжить к оплате</button>
+          </div>
+        </section>
+
+        <!-- BLOCK 2 -->
+        <section class="block" id="block2" data-state="locked" aria-labelledby="b2h">
+          <div class="block-head">
+            <span class="num"><span class="n">2</span></span>
+            <h2 id="b2h">Оплата</h2>
+          </div>
+          <div class="block-summary" id="sum2">Сначала заполните контакты и данные путешественников.</div>
+          <div class="block-body" id="body2">
+            <div class="alert" id="payAlert" role="alert" hidden></div>
+
+            <div class="field-label" style="font-size:11px;text-transform:uppercase;letter-spacing:.03em;font-weight:600;color:var(--muted);margin-bottom:8px;">Как оплатить</div>
+            <div class="plan-list" role="radiogroup" aria-label="Способ оплаты брони">
+              <label class="plan">
+                <input type="radio" name="plan" value="full" checked>
+                <div class="plan-main">
+                  <div class="plan-title"><span>Оплатить всё сейчас</span><span id="planFullAmt"></span></div>
+                  <div class="plan-sub">Ничего не нужно доплачивать, бронь сразу полностью оплачена.</div>
+                </div>
+              </label>
+              <label class="plan">
+                <input type="radio" name="plan" value="deposit">
+                <div class="plan-main">
+                  <div class="plan-title"><span>Внести 30% сейчас</span><span id="planDepAmt"></span></div>
+                  <div class="plan-sub" id="planDepSub"></div>
+                </div>
+              </label>
+            </div>
+
+            <div class="express">
+              <button type="button" id="applePay">Apple Pay</button>
+              <button type="button" id="googlePay">Google Pay</button>
+            </div>
+            <div class="or">или картой</div>
+
+            <div class="field" data-field="cardnum">
+              <label for="cardnum">Номер карты</label>
+              <input id="cardnum" data-rule="cardnum" inputmode="numeric" autocomplete="cc-number" placeholder="0000 0000 0000 0000" maxlength="19">
+              <div class="err" role="alert"></div>
+            </div>
+            <div class="row">
+              <div class="field" data-field="exp">
+                <label for="exp">Срок действия</label>
+                <input id="exp" data-rule="exp" inputmode="numeric" autocomplete="cc-exp" placeholder="ММ/ГГ" maxlength="5">
+                <div class="err" role="alert"></div>
+              </div>
+              <div class="field" data-field="cvc">
+                <label for="cvc">CVC</label>
+                <input id="cvc" data-rule="cvc" inputmode="numeric" autocomplete="cc-csc" placeholder="123" maxlength="3">
+                <div class="err" role="alert"></div>
+              </div>
+            </div>
+            <div class="field" style="margin-top:12px" data-field="cardname">
+              <label for="cardname">Имя на карте</label>
+              <input id="cardname" data-rule="text" autocomplete="cc-name" placeholder="IVAN PETROV">
+              <div class="err" role="alert"></div>
+            </div>
+
+            <button class="btn-primary" type="button" id="payBtn">Оплатить</button>
+            <div class="assure">
+              <b>Бесплатная отмена до <span id="cancelDate1"></span></b><br>
+              Нажимая «Оплатить», вы соглашаетесь с <a href="#" onclick="return false">условиями бронирования</a>. Платёж защищён шифрованием.
+            </div>
+          </div>
+        </section>
+
+      </div>
+
+      <!-- SUMMARY -->
+      <aside class="summary" id="summary" aria-label="Ваш заказ">
+        <div class="hold" id="hold" role="timer">
+          <span class="dot"></span>
+          <span>Места удержаны за вами</span>
+          <span class="t" id="timer">15:00</span>
+        </div>
+        <button class="extend" type="button" id="extendBtn" hidden>Продлить ещё на 5 минут</button>
+        <div class="tour-mini">
+          <div class="thumb"></div>
+          <div>
+            <div class="place">Грузия · Сванетия</div>
+            <div class="tname">Треккинг в горах, 6 дней</div>
+          </div>
+        </div>
+        <dl class="facts">
+          <div><dt>Даты</dt><dd>28 сентября – 3 октября 2027</dd></div>
+          <div><dt>Группа</dt><dd id="factGroup"></dd></div>
+        </dl>
+        <a class="change-link" href="wanderloop-tour-page.html">Изменить дату или состав</a>
+
+        <div class="lines" style="margin-top:14px">
+          <div class="l"><span id="lnAdults"></span><span id="lnAdultsAmt"></span></div>
+          <div class="l" id="lnChildRow"><span id="lnChildren"></span><span id="lnChildrenAmt"></span></div>
+          <div class="l disc" id="lnDiscRow" hidden><span>Промокод <span id="lnDiscCode"></span></span><span id="lnDiscAmt"></span></div>
+          <button class="promo-toggle" type="button" id="promoToggle">Есть промокод?</button>
+          <div class="promo-box" id="promoBox" hidden>
+            <input id="promoInput" placeholder="Промокод" aria-label="Промокод" autocomplete="off">
+            <button type="button" id="promoApply">Применить</button>
+          </div>
+          <div class="promo-msg" id="promoMsg"></div>
+        </div>
+
+        <div class="totals">
+          <div class="total-main"><span>Итого</span><span class="amt" id="totalAmt"></span></div>
+          <div class="total-later" id="laterRow" hidden><span>К оплате сейчас</span><b id="dueNow"></b></div>
+          <div class="total-later" id="laterRow2" hidden><span id="laterLabel"></span><span id="laterAmt"></span></div>
+        </div>
+
+        <div class="trust">
+          <b>Бесплатная отмена до <span id="cancelDate2"></span></b><br>
+          Вопросы по брони: support@wanderloop.example
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <!-- ====================== SOLD OUT ====================== -->
+  <div id="view-soldout" hidden>
+    <div class="state-card">
+      <div class="state-icon warn"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v6M12 16.5v.01"/></svg></div>
+      <h2>Эти места только что забронировали</h2>
+      <p>На 28 сентября не осталось свободных мест для вашей группы. Ничего не списано, введённые данные мы сохранили.</p>
+      <div class="alt-date">
+        <div><b>14 ноября 2027</b><div class="s">Свободно 5 из 8 мест</div></div>
+        <button class="btn-secondary" type="button" id="altDateBtn" style="height:36px;padding:0 14px">Выбрать</button>
+      </div>
+      <div class="state-actions">
+        <button class="btn-primary" type="button" id="waitlistBtn">Встать в лист ожидания на 28 сентября</button>
+        <a class="btn-secondary" href="wanderloop-tour-page.html" style="display:flex;align-items:center;justify-content:center;text-decoration:none">Вернуться к туру</a>
+      </div>
+      <div class="assure" id="waitlistMsg" hidden style="color:var(--ok-green);font-weight:600"></div>
+    </div>
+  </div>
+
+  <!-- ====================== EXPIRED ====================== -->
+  <div id="view-expired" hidden>
+    <div class="state-card">
+      <div class="state-icon warn"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div>
+      <h2>Время удержания мест вышло</h2>
+      <p>Хорошая новость: места на 28 сентября пока свободны. Удержим их снова ещё на 15 минут, данные уже заполнены.</p>
+      <div class="state-actions">
+        <button class="btn-primary" type="button" id="reholdBtn">Удержать места снова</button>
+        <a class="btn-secondary" href="wanderloop-tour-page.html" style="display:flex;align-items:center;justify-content:center;text-decoration:none">Вернуться к туру</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====================== CONFIRMATION ====================== -->
+  <div id="view-confirm" hidden>
+    <div class="state-card" style="max-width:680px">
+      <div class="state-icon ok"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"/></svg></div>
+      <h2>Бронь подтверждена</h2>
+      <p>Письмо с деталями отправили на <b id="confEmail" style="color:var(--text)"></b></p>
+      <div class="confirm-ref">Номер брони WL-48271</div>
+      <dl class="facts" style="text-align:left;max-width:420px;margin:0 auto">
+        <div><dt>Тур</dt><dd>Треккинг в горах, 6 дней</dd></div>
+        <div><dt>Даты</dt><dd>28 сентября – 3 октября 2027</dd></div>
+        <div><dt>Группа</dt><dd id="confGroup"></dd></div>
+        <div><dt id="confPaidLabel">Оплачено</dt><dd id="confPaid"></dd></div>
+      </dl>
+
+      <div class="next-steps">
+        <h3>Что дальше</h3>
+        <div class="step"><span class="sn">1</span><div>Заполните паспортные данные всех путешественников<div class="sd">Ссылка в письме, в течение 7 дней</div></div></div>
+        <div class="step" id="stepRest"><span class="sn">2</span><div id="stepRestText"></div></div>
+        <div class="step"><span class="sn" id="stepListNum">3</span><div>Пришлём список вещей и контакты на связь во время поездки<div class="sd">За 14 дней до выезда</div></div></div>
+      </div>
+
+      <div class="confirm-actions">
+        <button class="btn-secondary" type="button" id="icsBtn">Добавить в календарь</button>
+        <button class="btn-secondary" type="button" id="voucherBtn">Скачать ваучер</button>
+      </div>
+
+      <div class="account-offer">
+        <div>
+          <div class="at">Сохранить бронь в личном кабинете</div>
+          <div class="ad">Войдёте по ссылке из письма, пароль придумывать не нужно.</div>
+        </div>
+        <button class="btn-secondary" type="button" id="accountBtn">Создать кабинет</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====================== DEMO PANEL ====================== -->
+  <div class="demo" id="demo">
+    <b>Панель демо</b> — не часть интерфейса, нужна только чтобы быстро посмотреть состояния.
+    <div class="demo-row">
+      <button type="button" id="dFill">Заполнить тестовыми данными</button>
+      <button type="button" id="dLow">Осталось 3 минуты</button>
+      <button type="button" id="dExpire">Время вышло</button>
+      <button type="button" id="dSold">Места заняли</button>
+      <label><input type="checkbox" id="dDecline"> Отклонить следующий платёж</label>
+      <button type="button" id="dReset">Начать заново</button>
+    </div>
+    <div style="margin-top:8px">Тестовая карта: 4242 4242 4242 4242, срок 12/30, CVC 123. Тестовый промокод: WANDER10.</div>
+  </div>
+
+</main>
+
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+  // ---------- data ----------
+  const cfg = { adults: 2, children: 1, adultPrice: 1240, childPrice: 620, depositPct: 0.3 };
+  const HOLD_SECONDS = 15 * 60;
+  const state = { promo: null, plan: 'full', declineNext: false, paying: false, endTime: Date.now() + HOLD_SECONDS * 1000, timerId: null, extended: false, view: 'checkout' };
+
+  const $ = (id) => document.getElementById(id);
+  const fmt = (n) => '$' + Math.round(n).toLocaleString('ru-RU');
+  const plural = (n, a, b, c) => { const m = n % 100, d = n % 10; if (m > 10 && m < 20) return c; if (d === 1) return a; if (d >= 2 && d <= 4) return b; return c; };
+
+  function groupText() {
+    const parts = [cfg.adults + ' ' + plural(cfg.adults, 'взрослый', 'взрослых', 'взрослых')];
+    if (cfg.children) parts.push(cfg.children + ' ' + plural(cfg.children, 'ребёнок', 'ребёнка', 'детей'));
+    return parts.join(', ');
+  }
+
+  function totals() {
+    const adultsAmt = cfg.adults * cfg.adultPrice;
+    const childAmt = cfg.children * cfg.childPrice;
+    const subtotal = adultsAmt + childAmt;
+    const disc = state.promo ? Math.round(subtotal * state.promo.pct) : 0;
+    const total = subtotal - disc;
+    const deposit = Math.round(total * cfg.depositPct);
+    const dueNow = state.plan === 'deposit' ? deposit : total;
+    return { adultsAmt, childAmt, subtotal, disc, total, deposit, rest: total - deposit, dueNow };
+  }
+
+  // ---------- travelers form ----------
+  function field(id, label, rule, attrs) {
+    return `<div class="field" data-field="${id}">
+      <label for="${id}">${label}</label>
+      <input id="${id}" data-rule="${rule}" ${attrs || ''}>
+      <div class="err" role="alert"></div></div>`;
+  }
+  function buildTravelers() {
+    let html = '';
+    const total = cfg.adults + cfg.children;
+    for (let i = 0; i < total; i++) {
+      const isChild = i >= cfg.adults;
+      if (i === 0) {
+        html += `<div class="traveler">
+          <div class="traveler-title">Основной путешественник</div>
+          <div class="traveler-note">Имя как в паспорте. На эту почту придёт подтверждение.</div>
+          <div class="row">${field('t0first', 'Имя', 'text', 'autocomplete="given-name" placeholder="Анна"')}${field('t0last', 'Фамилия', 'text', 'autocomplete="family-name" placeholder="Иванова"')}</div>
+          <div class="row">${field('email', 'Email', 'email', 'type="email" autocomplete="email" placeholder="name@mail.com"')}${field('phone', 'Телефон', 'phone', 'type="tel" autocomplete="tel" placeholder="+7 900 000-00-00"')}</div>
+        </div>`;
+      } else {
+        html += `<div class="traveler">
+          <div class="traveler-title">Путешественник ${i + 1} · ${isChild ? 'ребёнок' : 'взрослый'}</div>
+          <div class="row">${field('t' + i + 'first', 'Имя', 'text', 'placeholder="Имя"')}${field('t' + i + 'last', 'Фамилия', 'text', 'placeholder="Фамилия"')}</div>
+          ${isChild ? `<div class="field" style="margin-top:12px;max-width:50%" data-field="t${i}age">
+            <label for="t${i}age">Возраст на дату выезда</label>
+            <select id="t${i}age" data-rule="select"><option value="">Выберите</option>${[2,3,4,5,6,7,8,9,10,11].map(a => `<option value="${a}">${a} ${plural(a,'год','года','лет')}</option>`).join('')}</select>
+            <div class="err" role="alert"></div></div>` : ''}
+        </div>`;
+      }
+    }
+    $('travelers').innerHTML = html;
+  }
+
+  // ---------- validation ----------
+  const MSG = {
+    text: 'Заполните это поле', email: 'Проверьте email, например name@mail.com',
+    phone: 'Введите номер с кодом страны', select: 'Укажите возраст ребёнка',
+    cardnum: 'Проверьте номер карты', expEmpty: 'Укажите срок действия, например 12/30',
+    expPast: 'Срок действия карты истёк', cvc: 'Три цифры на обороте карты'
+  };
+  function luhn(num) {
+    let sum = 0, alt = false;
+    for (let i = num.length - 1; i >= 0; i--) { let d = +num[i]; if (alt) { d *= 2; if (d > 9) d -= 9; } sum += d; alt = !alt; }
+    return sum % 10 === 0;
+  }
+  function validateInput(el) {
+    const v = el.value.trim(), rule = el.dataset.rule;
+    if (rule === 'text') return v ? '' : MSG.text;
+    if (rule === 'select') return v ? '' : MSG.select;
+    if (rule === 'email') return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v) ? '' : MSG.email;
+    if (rule === 'phone') return v.replace(/\D/g, '').length >= 8 ? '' : MSG.phone;
+    if (rule === 'cardnum') { const d = v.replace(/\s/g, ''); return (d.length === 16 && luhn(d)) ? '' : MSG.cardnum; }
+    if (rule === 'exp') {
+      const m = v.match(/^(\d{2})\/(\d{2})$/);
+      if (!m) return MSG.expEmpty;
+      const mm = +m[1], yy = 2000 + +m[2];
+      if (mm < 1 || mm > 12) return MSG.expEmpty;
+      const now = new Date();
+      if (yy < now.getFullYear() || (yy === now.getFullYear() && mm < now.getMonth() + 1)) return MSG.expPast;
+      return '';
+    }
+    if (rule === 'cvc') return /^\d{3}$/.test(v) ? '' : MSG.cvc;
+    return '';
+  }
+  function showError(el, msg) {
+    const wrap = el.closest('.field');
+    wrap.classList.toggle('invalid', !!msg);
+    wrap.querySelector('.err').textContent = msg || '';
+    el.setAttribute('aria-invalid', msg ? 'true' : 'false');
+  }
+  function validateGroup(container) {
+    let firstBad = null;
+    container.querySelectorAll('[data-rule]').forEach((el) => {
+      const msg = validateInput(el);
+      showError(el, msg);
+      if (msg && !firstBad) firstBad = el;
+    });
+    if (firstBad) firstBad.focus();
+    return !firstBad;
+  }
+  // validate on blur, clear on input once corrected
+  document.addEventListener('focusout', (e) => {
+    if (e.target.matches && e.target.matches('[data-rule]') && (e.target.value || e.target.closest('.field').classList.contains('invalid'))) {
+      showError(e.target, validateInput(e.target));
+    }
+  });
+  document.addEventListener('input', (e) => {
+    const el = e.target;
+    if (!el.matches || !el.matches('[data-rule]')) return;
+    if (el.id === 'cardnum') {
+      const d = el.value.replace(/\D/g, '').slice(0, 16);
+      el.value = d.replace(/(.{4})/g, '$1 ').trim();
+    }
+    if (el.id === 'exp') {
+      let d = el.value.replace(/\D/g, '').slice(0, 4);
+      if (d.length >= 3) d = d.slice(0, 2) + '/' + d.slice(2);
+      el.value = d;
+    }
+    if (el.id === 'cvc') el.value = el.value.replace(/\D/g, '').slice(0, 3);
+    if (el.closest('.field').classList.contains('invalid') && !validateInput(el)) showError(el, '');
+  });
+
+  // ---------- blocks ----------
+  function setBlock(n, st) { $('block' + n).dataset.state = st; }
+  function dateMinus30() { return '29 августа 2027'; } // выезд 28 сентября 2027 минус 30 дней
+
+  function updateBlock1Summary() {
+    const first = $('t0first').value.trim(), last = $('t0last').value.trim();
+    const extra = cfg.adults + cfg.children - 1;
+    $('sum1').innerHTML = `<b style="color:var(--text)">${esc(first)} ${esc(last)}</b> · ${esc($('email').value.trim())} · ${esc($('phone').value.trim())}` +
+      (extra ? `<br>+ ${extra} ${plural(extra, 'путешественник', 'путешественника', 'путешественников')}` : '');
+  }
+  function esc(s) { return s.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+
+  $('continue1').addEventListener('click', () => {
+    if (!validateGroup($('body1'))) return;
+    updateBlock1Summary();
+    setBlock(1, 'done');
+    setBlock(2, 'active');
+    $('block2').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    setTimeout(() => $('cardnum').focus({ preventScroll: true }), 250);
+  });
+  $('edit1').addEventListener('click', () => {
+    setBlock(1, 'active');
+    setBlock(2, 'locked');
+    $('t0first').focus();
+  });
+
+  // ---------- summary ----------
+  function renderSummary() {
+    const t = totals();
+    $('factGroup').textContent = groupText();
+    $('lnAdults').textContent = `${cfg.adults} × взрослый, ${fmt(cfg.adultPrice)}`;
+    $('lnAdultsAmt').textContent = fmt(t.adultsAmt);
+    $('lnChildRow').hidden = !cfg.children;
+    $('lnChildren').textContent = `${cfg.children} × ребёнок, ${fmt(cfg.childPrice)}`;
+    $('lnChildrenAmt').textContent = fmt(t.childAmt);
+    $('lnDiscRow').hidden = !state.promo;
+    if (state.promo) { $('lnDiscCode').textContent = state.promo.code; $('lnDiscAmt').textContent = '−' + fmt(t.disc); }
+    $('totalAmt').textContent = fmt(t.total);
+    const dep = state.plan === 'deposit';
+    $('laterRow').hidden = !dep; $('laterRow2').hidden = !dep;
+    if (dep) {
+      $('dueNow').textContent = fmt(t.dueNow);
+      $('laterLabel').textContent = 'Остаток до ' + dateMinus30();
+      $('laterAmt').textContent = fmt(t.rest);
+    }
+    $('planFullAmt').textContent = fmt(t.total);
+    $('planDepAmt').textContent = fmt(t.deposit);
+    $('planDepSub').textContent = `Остаток ${fmt(t.rest)} оплатите до ${dateMinus30()}. Мы напомним на почту.`;
+    $('payBtn').textContent = 'Оплатить ' + fmt(t.dueNow);
+    $('cancelDate1').textContent = dateMinus30();
+    $('cancelDate2').textContent = dateMinus30();
+  }
+  document.querySelectorAll('input[name="plan"]').forEach((r) => r.addEventListener('change', () => { state.plan = r.value; renderSummary(); }));
+
+  // promo
+  $('promoToggle').addEventListener('click', () => { $('promoBox').hidden = false; $('promoToggle').hidden = true; $('promoInput').focus(); });
+  function applyPromo() {
+    const code = $('promoInput').value.trim().toUpperCase();
+    const msg = $('promoMsg');
+    if (!code) return;
+    if (code === 'WANDER10') {
+      state.promo = { code, pct: 0.1 };
+      msg.className = 'promo-msg ok'; msg.textContent = 'Промокод применён: скидка 10%';
+      $('promoBox').hidden = true;
+    } else {
+      msg.className = 'promo-msg err'; msg.textContent = 'Такого промокода нет. Проверьте написание.';
+    }
+    renderSummary();
+  }
+  $('promoApply').addEventListener('click', applyPromo);
+  $('promoInput').addEventListener('keydown', (e) => { if (e.key === 'Enter') applyPromo(); });
+
+  // ---------- timer ----------
+  function tick() {
+    const left = Math.max(0, Math.round((state.endTime - Date.now()) / 1000));
+    const m = Math.floor(left / 60), s = left % 60;
+    $('timer').textContent = m + ':' + String(s).padStart(2, '0');
+    $('hold').classList.toggle('low', left <= 180);
+    $('extendBtn').hidden = !(left <= 180 && left > 0 && !state.extended);
+    if (left <= 0 && state.view === 'checkout' && !state.paying) showView('expired');
+  }
+  function startTimer(seconds) {
+    state.endTime = Date.now() + (seconds || HOLD_SECONDS) * 1000;
+    state.extended = false;
+    clearInterval(state.timerId);
+    state.timerId = setInterval(tick, 1000);
+    tick();
+  }
+
+  // ---------- views ----------
+  function showView(v) {
+    state.view = v;
+    ['checkout', 'soldout', 'expired', 'confirm'].forEach((n) => { $('view-' + n).hidden = n !== v; });
+    if (v !== 'checkout') window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (v === 'soldout' || v === 'confirm') clearInterval(state.timerId);
+  }
+
+  // ---------- payment ----------
+  function pay(method) {
+    if (state.paying) return;
+    if (method === 'card') {
+      const ok = validateGroup($('body2'));
+      if (!ok) return;
+    }
+    state.paying = true;
+    $('payAlert').hidden = true;
+    const btn = $('payBtn');
+    btn.disabled = true; btn.textContent = 'Обрабатываем платёж…';
+    setTimeout(() => {
+      state.paying = false;
+      btn.disabled = false;
+      if (state.declineNext) {
+        state.declineNext = false; $('dDecline').checked = false;
+        $('payAlert').textContent = 'Банк отклонил платёж. Попробуйте другую карту или Apple Pay. Введённые данные сохранены, деньги не списаны.';
+        $('payAlert').hidden = false;
+        renderSummary();
+        $('payAlert').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return;
+      }
+      renderSummary();
+      renderConfirmation();
+      showView('confirm');
+    }, 1200);
+  }
+  $('payBtn').addEventListener('click', () => pay('card'));
+  $('applePay').addEventListener('click', () => pay('wallet'));
+  $('googlePay').addEventListener('click', () => pay('wallet'));
+
+  function renderConfirmation() {
+    const t = totals();
+    $('confEmail').textContent = $('email').value.trim() || 'вашу почту';
+    $('confGroup').textContent = groupText();
+    if (state.plan === 'deposit') {
+      $('confPaidLabel').textContent = 'Оплачено сейчас';
+      $('confPaid').textContent = fmt(t.dueNow) + ' из ' + fmt(t.total);
+      $('stepRest').hidden = false;
+      $('stepRestText').innerHTML = `Оплатите остаток ${fmt(t.rest)} до ${dateMinus30()}<div class="sd">Напомним письмом за 5 дней</div>`;
+      $('stepListNum').textContent = '3';
+    } else {
+      $('confPaidLabel').textContent = 'Оплачено';
+      $('confPaid').textContent = fmt(t.total);
+      $('stepRest').hidden = true;
+      $('stepListNum').textContent = '2';
+    }
+  }
+
+  // ---------- state-screen actions ----------
+  $('reholdBtn').addEventListener('click', () => { showView('checkout'); startTimer(); toast('Места снова удержаны на 15 минут'); });
+  $('altDateBtn').addEventListener('click', () => toast('В продукте здесь переход на страницу тура с выбранной датой 14 ноября'));
+  $('extendBtn').addEventListener('click', () => {
+    if (state.extended) return;
+    state.extended = true;
+    state.endTime += 5 * 60 * 1000;
+    tick();
+    toast('Места удержаны ещё на 5 минут');
+    $('hold').setAttribute('tabindex', '-1'); $('hold').focus(); // keep keyboard focus after the button hides
+  });
+  $('waitlistBtn').addEventListener('click', () => {
+    const m = $('waitlistMsg');
+    m.hidden = false;
+    m.textContent = 'Вы в листе ожидания. Если место освободится, напишем на ' + ($('email').value.trim() || 'вашу почту') + '.';
+    $('waitlistBtn').disabled = true; $('waitlistBtn').textContent = 'Вы в листе ожидания';
+  });
+  $('voucherBtn').addEventListener('click', () => toast('Ваучер скачивается (в прототипе без файла)'));
+  $('accountBtn').addEventListener('click', () => toast('Ссылка для входа отправлена на почту'));
+  $('icsBtn').addEventListener('click', () => {
+    const ics = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Wanderloop//RU', 'BEGIN:VEVENT', 'UID:WL-48271@wanderloop.example',
+      'DTSTAMP:20261015T090000Z', 'DTSTART;VALUE=DATE:20270928', 'DTEND;VALUE=DATE:20271004',
+      'SUMMARY:Wanderloop: Треккинг в горах, Сванетия', 'END:VEVENT', 'END:VCALENDAR'].join('\r\n');
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([ics], { type: 'text/calendar' }));
+    a.download = 'wanderloop-svaneti.ics';
+    document.body.appendChild(a); a.click(); a.remove();
+    toast('Событие сохранено в файл календаря');
+  });
+
+  // ---------- demo panel ----------
+  $('dFill').addEventListener('click', () => {
+    const set = (id, v) => { const el = $(id); if (el) el.value = v; };
+    set('t0first', 'Анна'); set('t0last', 'Иванова'); set('email', 'anna@example.com'); set('phone', '+7 900 000-00-00');
+    set('t1first', 'Пётр'); set('t1last', 'Иванов'); set('t2first', 'Мария'); set('t2last', 'Иванова'); set('t2age', '8');
+    set('cardnum', '4242 4242 4242 4242'); set('exp', '12/30'); set('cvc', '123'); set('cardname', 'ANNA IVANOVA');
+    document.querySelectorAll('.field.invalid').forEach((f) => { f.classList.remove('invalid'); });
+    toast('Поля заполнены тестовыми данными');
+  });
+  $('dLow').addEventListener('click', () => { if (state.view !== 'checkout') showView('checkout'); startTimer(180); });
+  $('dExpire').addEventListener('click', () => { if (state.view === 'confirm') return; showView('expired'); });
+  $('dSold').addEventListener('click', () => { if (state.view === 'confirm') return; showView('soldout'); });
+  $('dDecline').addEventListener('change', (e) => { state.declineNext = e.target.checked; });
+  $('dReset').addEventListener('click', () => location.reload());
+
+  let toastT;
+  function toast(msg) {
+    const t = $('toast'); t.textContent = msg; t.classList.add('show');
+    clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), 2600);
+  }
+
+  // ---------- init ----------
+  buildTravelers();
+  renderSummary();
+  startTimer();
+</script>
+</body>
+</html>

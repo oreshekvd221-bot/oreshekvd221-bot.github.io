@@ -1,0 +1,66 @@
+---
+// Filter bar + tour grid, shared by / and /tours (reference/figma/README.md:
+// "/ and /tours ... /tours is the same layout with the query applied").
+// Filtering runs entirely client-side (src/scripts/catalog.js): the grid holds
+// every tour, and JS shows/hides cards based on the filter chips and URL params.
+import tours from '../data/tours.json';
+import TourCard from './TourCard.astro';
+import FilterBar from './FilterBar.astro';
+
+const images = import.meta.glob<{ default: ImageMetadata }>('../assets/images/*/*.{jpg,jpeg,png}', {
+  eager: true,
+});
+
+function coverImage(folder: string) {
+  const path = Object.keys(images)
+    .filter((key) => key.includes(`/images/${folder}/`))
+    .sort()[0];
+  return path ? images[path].default : null;
+}
+---
+
+<div class="catalog" data-catalog>
+  <FilterBar tours={tours.tours} />
+
+  {/* Not in the Figma mockups — kept only as a screen-reader announcement
+      when the filtered count changes, not shown visually. */}
+  <p class="visually-hidden" data-result-count role="status"></p>
+
+  <div class="catalog__grid" data-tour-grid>
+    {tours.tours.map((tour) => <TourCard tour={tour} cover={coverImage(tour.imageFolder)} />)}
+  </div>
+
+  <div class="catalog__empty" data-empty-message hidden>
+    <p>No trips match these filters yet.</p>
+    <button type="button" class="btn btn--outline" data-filter-clear>Clear filters</button>
+  </div>
+</div>
+
+<script src="../scripts/catalog.js"></script>
+
+<style>
+  .catalog__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-4);
+    margin-top: var(--space-5);
+  }
+
+  .catalog__empty {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-3);
+    padding: var(--space-5) 0;
+  }
+
+  /* 3 fluid columns, not auto-fill — at the 1440 design width with the
+     1360 content area and 24px gaps, that lands each column at ~437px,
+     matching reference/figma/components/tour-card-desktop.png exactly,
+     while staying responsive at other widths. */
+  @media (min-width: 768px) {
+    .catalog__grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+</style>

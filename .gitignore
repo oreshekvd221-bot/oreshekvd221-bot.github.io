@@ -1,0 +1,21 @@
+node_modules/
+dist/
+.astro/
+.env
+.DS_Store
+test-results/
+playwright-report/
+
+# QA screenshots/diffs — regenerate with qa/capture.mjs + qa/diff.mjs
+qa/shots/
+qa/diff/
+
+# Pre-scaffold originals (CLAUDE.md: kept on disk as source material, already
+# copied into src/assets/ — no need to also carry these large raw files,
+# the old icon names, or Figma reference exports into the deployed repo).
+/Wanderloop-img/
+/icons/
+/icons-named/
+/Logo/
+/tours.json
+reference/figma/

@@ -1,0 +1,164 @@
+---
+// Bookings are mocked (localStorage, written by checkout.js) and gated behind
+// the mocked sign-in (src/scripts/auth.js) — see CLAUDE.md: "Redirect to
+// sign-in if signed out." There's no route for sign-in (it's a modal), so a
+// signed-out visit shows a prompt that opens it instead of a real redirect.
+// Design: reference/figma/desktop+mobile/my-bookings.png.
+import Layout from '../../layouts/Layout.astro';
+---
+
+<Layout title="My bookings" headerVariant="account" headerBackHref="/">
+  <section class="container bookings-page" data-bookings-root>
+    <div data-signed-out-prompt hidden>
+      <h1>My bookings</h1>
+      <p class="bookings-page__prompt-text">Sign in to see your bookings.</p>
+      <button type="button" class="btn btn--solid" data-prompt-login>Log in</button>
+    </div>
+
+    <div data-bookings-content hidden>
+      <h1>My bookings</h1>
+      <div class="bookings-page__tabs" role="tablist" aria-label="Booking status">
+        <button type="button" class="bookings-page__tab is-active" data-tab="upcoming" role="tab" aria-selected="true">
+          Upcoming
+        </button>
+        <button type="button" class="bookings-page__tab" data-tab="past" role="tab" aria-selected="false">Past</button>
+      </div>
+      <div class="bookings-page__list" data-bookings-list></div>
+    </div>
+  </section>
+</Layout>
+
+<script src="../../scripts/account-bookings.js"></script>
+
+<style>
+  .bookings-page {
+    padding-block: var(--space-4) var(--space-6);
+    /* Narrow column, same width as the other account page (profile.astro)
+       — matches Figma, where the booking cards are nowhere near as wide
+       as the page container. */
+    max-width: 480px;
+  }
+
+  .bookings-page__prompt-text {
+    color: var(--color-text-subtle);
+    margin-top: var(--space-2);
+    margin-bottom: var(--space-4);
+  }
+
+  .bookings-page__tabs {
+    display: flex;
+    gap: var(--space-2);
+    margin: var(--space-4) 0;
+  }
+
+  .bookings-page__tab {
+    border: none;
+    border-radius: var(--radius-pill);
+    background: var(--color-surface);
+    color: var(--color-text);
+    padding: var(--space-2) var(--space-4);
+    min-height: 44px;
+    font-weight: var(--weight-semibold);
+  }
+
+  .bookings-page__tab.is-active {
+    background: var(--color-accent-strong);
+    color: var(--color-on-accent);
+  }
+
+  .bookings-page__list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  :global(.booking-card-row) {
+    background: var(--color-bg);
+    box-shadow: var(--shadow-card);
+    border-radius: var(--radius-card);
+    padding: var(--space-4);
+  }
+
+  :global(.booking-card-row__head) {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: var(--space-3);
+  }
+
+  :global(.booking-card-row__place) {
+    color: var(--color-text-subtle);
+    font-size: var(--text-caption-size);
+  }
+
+  :global(.booking-card-row__chip) {
+    border-radius: var(--radius-pill);
+    padding: var(--space-1) var(--space-3);
+    font-size: var(--text-caption-size);
+    font-weight: var(--weight-semibold);
+    white-space: nowrap;
+  }
+
+  :global(.booking-card-row__chip--confirmed) {
+    background: var(--color-ok-bg);
+    color: var(--color-ok-text);
+  }
+
+  :global(.booking-card-row__chip--waitlist) {
+    background: var(--color-scarce-bg);
+    color: var(--color-scarce-text);
+  }
+
+  :global(.booking-card-row__chip--cancelled) {
+    background: var(--color-surface);
+    color: var(--color-text-subtle);
+  }
+
+  :global(.booking-card-row__name) {
+    font-size: var(--text-h3-size);
+    font-weight: var(--text-h3-weight);
+    margin-top: var(--space-1);
+  }
+
+  :global(.booking-card-row__meta) {
+    color: var(--color-text-subtle);
+    margin-top: var(--space-1);
+  }
+
+  :global(.booking-card-row__foot) {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--space-3);
+    margin-top: var(--space-3);
+  }
+
+  :global(.booking-card-row__price span) {
+    color: var(--color-text-subtle);
+    font-weight: var(--weight-regular);
+    font-size: var(--text-caption-size);
+  }
+
+  :global(.booking-card-row__actions) {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+  }
+
+  :global(.booking-card-row__actions a) {
+    color: var(--color-accent-text);
+    font-weight: var(--weight-semibold);
+  }
+
+  :global(.booking-card-row__actions button) {
+    background: none;
+    border: none;
+    color: var(--color-text-subtle);
+    text-decoration: underline;
+    min-height: 44px;
+  }
+
+  :global(.booking-card-row__empty) {
+    color: var(--color-text-subtle);
+  }
+</style>

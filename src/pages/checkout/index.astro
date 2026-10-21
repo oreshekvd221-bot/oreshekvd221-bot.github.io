@@ -1,0 +1,993 @@
+---
+// Static page: the tour/departure/traveler counts only exist at runtime via the
+// URL (?tour=&departure=&adults=&children=), so all content is built by
+// src/scripts/checkout.js. This file is just the shell + a cover-image lookup
+// table (built at compile time so photos stay optimized, see Catalog.astro).
+// Layout: reference/figma/desktop+mobile/03..07-checkout-*.png.
+// Behavior: reference/prototypes/wanderloop-checkout-en.html.
+import { getImage } from 'astro:assets';
+import Layout from '../../layouts/Layout.astro';
+import toursData from '../../data/tours.json';
+import chevronLeft from '../../assets/icons/chevron-left-24.svg';
+import userIcon from '../../assets/icons/user-circle-40.svg';
+import paymentsIcon from '../../assets/icons/payments-circle-40.svg';
+import checkIcon from '../../assets/icons/check-circle-30.svg';
+import exclamationIcon from '../../assets/icons/exclamation-24.svg';
+import clockIcon from '../../assets/icons/clock-circle-70.svg';
+import warningIcon from '../../assets/icons/warning-triangle-70.svg';
+
+const images = import.meta.glob('../../assets/images/*/*.{jpg,jpeg,png}', { eager: true });
+function coverModule(folder: string) {
+  const path = Object.keys(images)
+    .filter((key) => key.includes(`/images/${folder}/`))
+    .sort()[0];
+  return path ? images[path].default : null;
+}
+
+const coverEntries = await Promise.all(
+  toursData.tours.map(async (t) => {
+    const mod = coverModule(t.imageFolder);
+    if (!mod) return [t.slug, null];
+    const img = await getImage({ src: mod, width: 128, height: 128 });
+    return [t.slug, img.src];
+  }),
+);
+const coverMap = Object.fromEntries(coverEntries);
+---
+
+<Layout title="Checkout" headerVariant="checkout">
+  <div class="container checkout" data-checkout-root>
+    <script type="application/json" id="cover-images" set:html={JSON.stringify(coverMap)} />
+    <p class="visually-hidden" role="status" data-announce></p>
+
+    <div data-view="checkout" hidden>
+      <a href="/tours" class="checkout__back" data-back-link>
+        <img src={chevronLeft.src} alt="" width="20" height="20" /> Back to trip
+      </a>
+      <h1>Complete your booking</h1>
+      <p class="checkout__sub">Takes about 2 minutes. No account needed.</p>
+
+      <div class="checkout__grid">
+        <aside class="order-summary" data-order-summary aria-label="Your order">
+          <div class="hold" data-hold tabindex="-1">
+            <span class="hold__dot" aria-hidden="true"></span>
+            <span>Spots held for you</span>
+            <span class="hold__time" data-timer>15:00</span>
+          </div>
+          <button type="button" class="btn btn--outline order-summary__extend" data-extend-btn hidden>
+            Extend by 5 minutes
+          </button>
+
+          <div class="order-summary__tour">
+            <img data-tour-thumb alt="" width="64" height="64" hidden />
+            <div>
+              <p class="order-summary__place" data-tour-place></p>
+              <p class="order-summary__name" data-tour-name></p>
+            </div>
+          </div>
+
+          <dl class="order-summary__facts">
+            <div><dt>Dates</dt><dd data-fact-dates></dd></div>
+            <div><dt>Group</dt><dd data-fact-group></dd></div>
+          </dl>
+          <a href="/tours" class="order-summary__change" data-change-link>Change date or group size</a>
+
+          <div class="order-summary__lines">
+            <div class="order-summary__line">
+              <span data-line-adults-label></span><span data-line-adults-amt></span>
+            </div>
+            <div class="order-summary__line" data-line-children>
+              <span data-line-children-label></span><span data-line-children-amt></span>
+            </div>
+            <div class="order-summary__line order-summary__line--discount" data-line-discount hidden>
+              <span>Promo code <span data-promo-code-label></span></span><span data-line-discount-amt></span>
+            </div>
+            <button type="button" class="order-summary__promo-toggle" data-promo-toggle>Have a promo code?</button>
+            <div class="order-summary__promo-box" data-promo-box hidden>
+              <label class="visually-hidden" for="promo-input">Promo code</label>
+              <input id="promo-input" data-promo-input autocomplete="off" />
+              <button type="button" class="btn btn--outline" data-promo-apply>Apply</button>
+            </div>
+            <p class="order-summary__promo-msg" data-promo-msg role="status"></p>
+          </div>
+
+          <div class="order-summary__totals">
+            <div class="order-summary__total-main"><span>Total</span><strong data-total-amt></strong></div>
+            <div class="order-summary__total-later" data-due-row hidden>
+              <span>Due now</span><strong data-due-now></strong>
+            </div>
+            <div class="order-summary__total-later" data-rest-row hidden>
+              <span data-rest-label></span><span data-rest-amt></span>
+            </div>
+          </div>
+
+          <p class="order-summary__trust">
+            <strong>Free cancellation until <span data-cancel-date-2></span></strong><br />
+            Booking questions: support@wanderloop.example
+          </p>
+        </aside>
+
+        <div class="checkout-form">
+          <section class="checkout-block" data-block="1" data-state="active" aria-labelledby="block1-heading">
+            <div class="checkout-block__head">
+              <span class="checkout-block__num">
+                <img src={userIcon.src} alt="" width="40" height="40" />
+                <span class="checkout-block__badge">
+                  <span data-num-text>1</span>
+                  <img data-num-check src={checkIcon.src} alt="" width="20" height="20" hidden />
+                </span>
+              </span>
+              <div class="checkout-block__title">
+                <h2 id="block1-heading">Contact details &amp; travelers</h2>
+                <p class="checkout-block__summary" data-block-summary="1" hidden></p>
+              </div>
+              <button type="button" class="checkout-block__edit" data-edit-block="1" hidden>Edit</button>
+            </div>
+            <div class="checkout-block__body" data-block-body="1">
+              <div data-travelers-container></div>
+              <div class="info-note">
+                <img src={exclamationIcon.src} alt="" width="20" height="20" />
+                <span
+                  >No need to enter passport details now: we'll email you a link, and you can fill them in within 7
+                  days of booking.</span
+                >
+              </div>
+              <button type="button" class="btn btn--solid checkout-block__cta" data-continue-btn>
+                Continue to payment
+              </button>
+            </div>
+          </section>
+
+          <section class="checkout-block" data-block="2" data-state="locked" aria-labelledby="block2-heading">
+            <div class="checkout-block__head">
+              <span class="checkout-block__num">
+                <img src={paymentsIcon.src} alt="" width="40" height="40" />
+                <span class="checkout-block__badge">
+                  <span data-num-text>2</span>
+                  <img data-num-check src={checkIcon.src} alt="" width="20" height="20" hidden />
+                </span>
+              </span>
+              <div class="checkout-block__title">
+                <h2 id="block2-heading">Payment</h2>
+                <p class="checkout-block__summary" data-block-summary="2">Fill in contact details and travelers first.</p>
+              </div>
+            </div>
+            <div class="checkout-block__body" data-block-body="2" hidden>
+              <p class="pay-alert" data-pay-alert role="alert" hidden></p>
+
+              <p class="checkout-form__label">How to pay</p>
+              <div class="payment-plans" role="radiogroup" aria-label="Payment option">
+                <label class="payment-plan">
+                  <input type="radio" name="plan" value="full" checked data-plan-radio />
+                  <span class="payment-plan__main">
+                    <span class="payment-plan__text">
+                      <span class="payment-plan__title">Pay in full now</span>
+                      <span class="payment-plan__sub">Nothing more to pay, your booking is fully paid.</span>
+                    </span>
+                    <span class="payment-plan__amt" data-plan-full-amt></span>
+                  </span>
+                </label>
+                <label class="payment-plan">
+                  <input type="radio" name="plan" value="deposit" data-plan-radio />
+                  <span class="payment-plan__main">
+                    <span class="payment-plan__text">
+                      <span class="payment-plan__title">Pay 30% now</span>
+                      <span class="payment-plan__sub" data-plan-deposit-sub></span>
+                    </span>
+                    <span class="payment-plan__amt" data-plan-deposit-amt></span>
+                  </span>
+                </label>
+              </div>
+
+              <div class="express-pay">
+                <button type="button" class="express-pay__btn" data-wallet-pay="apple">Apple Pay</button>
+                <button type="button" class="express-pay__btn" data-wallet-pay="google">Google Pay</button>
+              </div>
+              <p class="express-pay__divider"><span>or pay by card</span></p>
+
+              <div class="field" data-field="cardnum">
+                <label for="cardnum">Card number</label>
+                <input
+                  id="cardnum"
+                  data-rule="cardnum"
+                  inputmode="numeric"
+                  autocomplete="cc-number"
+                  placeholder="0000 0000 0000 0000"
+                  maxlength="19"
+                  aria-describedby="cardnum-err"
+                />
+                <p class="field__error" id="cardnum-err" data-error></p>
+              </div>
+              <div class="field-row">
+                <div class="field" data-field="exp">
+                  <label for="exp">Expiry date</label>
+                  <input
+                    id="exp"
+                    data-rule="exp"
+                    inputmode="numeric"
+                    autocomplete="cc-exp"
+                    placeholder="MM/YY"
+                    maxlength="5"
+                    aria-describedby="exp-err"
+                  />
+                  <p class="field__error" id="exp-err" data-error></p>
+                </div>
+                <div class="field" data-field="cvc">
+                  <label for="cvc">CVC</label>
+                  <input
+                    id="cvc"
+                    data-rule="cvc"
+                    inputmode="numeric"
+                    autocomplete="cc-csc"
+                    placeholder="123"
+                    maxlength="3"
+                    aria-describedby="cvc-err"
+                  />
+                  <p class="field__error" id="cvc-err" data-error></p>
+                </div>
+              </div>
+              <div class="field" data-field="cardname">
+                <label for="cardname">Name on card</label>
+                <input
+                  id="cardname"
+                  data-rule="text"
+                  autocomplete="cc-name"
+                  placeholder="JOHN SMITH"
+                  aria-describedby="cardname-err"
+                />
+                <p class="field__error" id="cardname-err" data-error></p>
+              </div>
+
+              <button type="button" class="btn btn--solid checkout-block__cta" data-pay-btn>Pay</button>
+              <p class="checkout-form__assurance">
+                <strong>Free cancellation until <span data-cancel-date-1></span></strong><br />
+                By clicking "Pay", you agree to the booking terms. Your payment is encrypted.
+              </p>
+            </div>
+          </section>
+        </div>
+      </div>
+    </div>
+
+    <div class="state-screen" data-view="soldout" hidden>
+      <div class="state-card">
+        <img src={warningIcon.src} alt="" width="70" height="70" />
+        <div class="state-card__intro">
+          <h1>Those spots were just booked</h1>
+          <p>
+            There are no spots left for your group on <span data-soldout-dates></span>. You haven't been charged,
+            and we've kept your details.
+          </p>
+        </div>
+        <div class="alt-date" data-alt-date hidden>
+          <div>
+            <strong data-alt-date-label></strong>
+            <p class="alt-date__spots" data-alt-date-spots></p>
+          </div>
+          <button type="button" class="btn btn--outline" data-alt-date-select>Select</button>
+        </div>
+        <div class="state-card__actions">
+          <button type="button" class="btn btn--solid" data-waitlist-btn data-soldout-waitlist-btn>Join the waitlist</button>
+          <a href="/tours" class="btn btn--outline" data-back-link>Back to trip</a>
+        </div>
+        <p class="state-card__note" data-waitlist-msg hidden role="status"></p>
+      </div>
+    </div>
+
+    <div class="state-screen" data-view="expired" hidden>
+      <div class="state-card">
+        <img src={clockIcon.src} alt="" width="70" height="70" />
+        <div class="state-card__intro">
+          <h1>Your hold has expired</h1>
+          <p>
+            Good news: the spots on <span data-fact-dates-expired></span> are still available. We'll hold them
+            again for 15 minutes, and your details are already filled in.
+          </p>
+        </div>
+        <div class="state-card__actions">
+          <button type="button" class="btn btn--solid" data-rehold-btn>Hold spots again</button>
+          <a href="/tours" class="btn btn--outline" data-back-link>Back to trip</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="state-screen" data-view="notfound" hidden>
+      <div class="state-card">
+        <div class="state-card__intro">
+          <h1>We couldn't find that booking</h1>
+          <p>The trip or departure you're looking for isn't available anymore.</p>
+        </div>
+        <div class="state-card__actions">
+          <a href="/tours" class="btn btn--solid">Browse all trips</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</Layout>
+
+<script src="../../scripts/checkout.js"></script>
+
+<style>
+  .checkout {
+    padding-block: var(--space-4) var(--space-6);
+    /* Narrower than the sitewide 1360px content width: CLAUDE.md specs
+       checkout at 1120px (a 400px summary column plus the form). */
+    max-width: 1120px;
+  }
+
+  .checkout__back {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    color: var(--color-accent-2-text);
+    text-decoration: none;
+    font-weight: var(--weight-semibold);
+    margin-left: var(--space-4);
+  }
+
+  /* Lines up with the chevron on "Back to trip" above and the icon on
+     "Contact details & travelers" below — all three are the leading edge
+     of their row, 24px in from the card/page edge. */
+  .checkout h1 {
+    margin-top: 40px;
+    margin-left: var(--space-4);
+    font-size: var(--text-display-size);
+    font-weight: var(--text-display-weight);
+    line-height: var(--text-display-lh);
+    letter-spacing: var(--text-display-ls);
+  }
+
+  .checkout__sub {
+    color: var(--color-text-subtle);
+    margin-top: var(--space-1);
+    margin-left: var(--space-4);
+  }
+
+  .checkout__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-4);
+    margin-top: var(--space-4);
+  }
+
+  /* ---------- order summary ---------- */
+  .order-summary {
+    background: var(--color-bg);
+    box-shadow: var(--shadow-card);
+    border-radius: var(--radius-card);
+    padding: var(--space-4);
+  }
+
+  .hold {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    background: var(--color-ok-bg);
+    color: var(--color-ok-text);
+    border-radius: var(--radius-pill);
+    padding: var(--space-2) var(--space-3);
+    margin-bottom: var(--space-3);
+  }
+
+  .hold.is-low {
+    background: var(--color-scarce-bg);
+    color: var(--color-scarce-text);
+  }
+
+  .hold__dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: currentColor;
+    flex-shrink: 0;
+  }
+
+  .hold__time {
+    margin-left: auto;
+    font-size: var(--text-h3-size);
+    font-weight: var(--weight-bold);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .order-summary__extend {
+    width: 100%;
+    margin-bottom: var(--space-3);
+  }
+
+  .order-summary__tour {
+    display: flex;
+    gap: var(--space-3);
+    align-items: center;
+    margin-bottom: var(--space-3);
+  }
+
+  .order-summary__tour img {
+    width: 64px;
+    height: 64px;
+    border-radius: var(--radius-field);
+    object-fit: cover;
+    flex-shrink: 0;
+  }
+
+  .order-summary__place {
+    color: var(--color-text-subtle);
+    font-size: var(--text-caption-size);
+  }
+
+  .order-summary__name {
+    font-size: var(--text-h3-size);
+    font-weight: var(--weight-semibold);
+  }
+
+  .order-summary__facts {
+    border-top: 1px solid var(--color-line);
+    padding-top: var(--space-3);
+    margin: 0 0 var(--space-2);
+  }
+
+  .order-summary__facts div {
+    display: flex;
+    justify-content: space-between;
+    padding-block: var(--space-1);
+    gap: var(--space-3);
+  }
+
+  .order-summary__facts dt {
+    color: var(--color-text-subtle);
+    font-size: var(--text-caption-size);
+  }
+
+  .order-summary__facts dd {
+    margin: 0;
+    font-size: var(--text-body-size);
+    font-weight: var(--weight-semibold);
+    text-align: right;
+  }
+
+  .order-summary__change {
+    color: var(--color-accent-text);
+    font-size: var(--text-caption-size);
+  }
+
+  .order-summary__lines {
+    border-top: 1px solid var(--color-line);
+    margin-top: var(--space-3);
+    padding-top: var(--space-3);
+  }
+
+  .order-summary__line {
+    display: flex;
+    justify-content: space-between;
+    padding-block: var(--space-1);
+    font-size: var(--text-caption-size);
+    color: var(--color-text-subtle);
+  }
+
+  .order-summary__line:not(.order-summary__line--discount) span:last-child {
+    font-size: var(--text-body-size);
+    font-weight: var(--weight-semibold);
+    color: var(--color-text);
+  }
+
+  .order-summary__line--discount {
+    color: var(--color-ok-text);
+    font-weight: var(--weight-semibold);
+  }
+
+  .order-summary__promo-toggle {
+    background: none;
+    border: none;
+    padding: var(--space-2) 0 0;
+    color: var(--color-accent-text);
+    text-decoration: underline;
+  }
+
+  .order-summary__promo-box {
+    display: flex;
+    gap: var(--space-2);
+    margin-top: var(--space-2);
+  }
+
+  .order-summary__promo-box input {
+    flex: 1;
+    min-width: 0;
+    height: 40px;
+    border: 1px solid var(--color-line-strong);
+    border-radius: var(--radius-field);
+    padding-inline: var(--space-3);
+    text-transform: uppercase;
+  }
+
+  .order-summary__promo-msg--ok {
+    color: var(--color-ok-text);
+  }
+
+  .order-summary__promo-msg--err {
+    color: var(--color-error);
+  }
+
+  .order-summary__totals {
+    border-top: 1px solid var(--color-line);
+    margin-top: var(--space-3);
+    padding-top: var(--space-3);
+  }
+
+  .order-summary__total-main {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+  }
+
+  .order-summary__total-main span {
+    font-size: var(--text-caption-size);
+    color: var(--color-text-subtle);
+  }
+
+  .order-summary__total-main strong {
+    font-size: var(--text-h2-size);
+    font-weight: var(--weight-bold);
+  }
+
+  .order-summary__total-later {
+    display: flex;
+    justify-content: space-between;
+    color: var(--color-text-subtle);
+    font-size: var(--text-caption-size);
+    margin-top: var(--space-1);
+  }
+
+  .order-summary__trust {
+    border-top: 1px solid var(--color-line);
+    margin-top: var(--space-3);
+    padding-top: var(--space-3);
+    color: var(--color-text-subtle);
+    font-size: var(--text-caption-size);
+  }
+
+  .order-summary__trust strong {
+    color: var(--color-ok-text);
+  }
+
+  /* ---------- blocks ---------- */
+  .checkout-block {
+    background: var(--color-bg);
+    border-radius: var(--radius-card);
+    padding: var(--space-4);
+    margin-bottom: var(--space-3);
+  }
+
+  .checkout-block__head {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+  }
+
+  /* The Payment plate doubles as a "continue" shortcut while step 1 isn't
+     done yet — clicking it validates and opens payment, same as the button. */
+  [data-block='2'] .checkout-block__head {
+    cursor: pointer;
+  }
+
+  .checkout-block__num {
+    position: relative;
+    flex-shrink: 0;
+  }
+
+  .checkout-block__badge {
+    position: absolute;
+    bottom: -2px;
+    right: -2px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--color-accent-strong);
+    color: var(--color-on-accent);
+    font-size: var(--text-caption-size);
+    font-weight: var(--weight-bold);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .checkout-block[data-state='done'] .checkout-block__badge {
+    background: var(--color-ok-text);
+  }
+
+  /* Wraps the heading and its (optional) summary line so the icon centers
+     against the two of them together, not just the heading on its own. */
+  .checkout-block__title {
+    flex: 1;
+  }
+
+  .checkout-block__title h2 {
+    font-size: var(--text-h3-size);
+    font-weight: var(--text-h3-weight);
+  }
+
+  .checkout-block__edit {
+    background: none;
+    border: none;
+    color: var(--color-accent-text);
+    text-decoration: underline;
+    font-weight: var(--weight-semibold);
+  }
+
+  .checkout-block__summary {
+    margin-top: 0;
+    color: var(--color-text-subtle);
+  }
+
+  .checkout-block__body {
+    margin-top: var(--space-4);
+  }
+
+  .checkout-block[data-state='locked'] {
+    opacity: 0.6;
+  }
+
+  /* :global() throughout this block: the Lead traveler / Traveler N fields
+     are built by checkout.js (innerHTML into data-travelers-container), so
+     those elements never get Astro's scoping attribute — a plain scoped
+     selector here would silently never match them. */
+  :global(.traveler + .traveler) {
+    margin-top: var(--space-4);
+    padding-top: var(--space-4);
+    border-top: 1px solid var(--color-line);
+  }
+
+  :global(.traveler__title) {
+    font-weight: var(--weight-semibold);
+  }
+
+  :global(.traveler__note) {
+    color: var(--color-text-subtle);
+    font-size: var(--text-caption-size);
+    margin-bottom: var(--space-3);
+  }
+
+  :global(.field-row) {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-3);
+  }
+
+  /* Traveler 3 · child's First/Last/Age at departure row. */
+  :global(.field-row--3) {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+
+  /* Vertical spacing between stacked blocks (a field-row followed by
+     another field-row or a standalone field). Deliberately NOT `.field +
+     .field`: inside a field-row, the fields are side-by-side grid items,
+     not stacked — that selector would (and did) wrongly push the second
+     column down by matching those same siblings. */
+  :global(.field + .field-row),
+  :global(.field-row + .field),
+  :global(.field-row + .field-row) {
+    margin-top: var(--space-3);
+  }
+
+  :global(.field label) {
+    display: block;
+    font-size: var(--text-caption-size);
+    font-weight: var(--weight-semibold);
+    color: var(--color-text-subtle);
+    margin-bottom: var(--space-1);
+  }
+
+  :global(.field input),
+  :global(.field select) {
+    width: 100%;
+    min-height: 44px;
+    padding: var(--space-1) var(--space-3);
+    border: 1px solid var(--color-line-strong);
+    border-radius: var(--radius-field);
+    background: var(--color-bg);
+    font-family: inherit;
+    font-size: var(--text-body-size);
+    color: var(--color-text);
+  }
+
+  /* Swap the browser's own dropdown arrow (size/position/color vary a lot
+     per OS and aren't stylable directly) for a flat gray chevron, properly
+     centered — the native one rendered high and dark/black. */
+  :global(.field select) {
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M16.53 8.97a.75.75 0 0 1 0 1.06l-4 4a.75.75 0 0 1-1.06 0l-4-4a.75.75 0 1 1 1.06-1.06L12 12.44l3.47-3.47a.75.75 0 0 1 1.06 0Z' fill='%236D6D6D'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right var(--space-3) center;
+    background-size: 16px;
+    padding-right: calc(var(--space-3) * 2 + 16px);
+  }
+
+  /* The "Select" placeholder option reads as muted/unfilled, same as an
+     empty text input's placeholder — turns normal text color once a real
+     age is picked. */
+  :global(.field select:invalid) {
+    color: var(--color-text-subtle);
+  }
+
+  /* Border-color change instead of a box outline — same treatment as the
+     login/signup modal fields, still clearly visible but without the extra
+     ring sitting on top of the field's own rounded border. */
+  :global(.field input:focus),
+  :global(.field select:focus) {
+    outline: none;
+    border-color: var(--color-focus);
+  }
+
+  :global(.field--invalid input),
+  :global(.field--invalid select) {
+    border-color: var(--color-error);
+  }
+
+  :global(.field__error) {
+    display: none;
+    color: var(--color-error);
+    font-size: var(--text-caption-size);
+    margin: var(--space-1) 0 0;
+  }
+
+  :global(.field--invalid .field__error) {
+    display: block;
+  }
+
+  .info-note {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+    background: var(--color-accent-soft);
+    color: var(--color-accent-text);
+    border-radius: var(--radius-field);
+    padding: var(--space-3) var(--space-4);
+    margin-top: var(--space-4);
+    font-size: var(--text-caption-size);
+  }
+
+  .checkout-block__cta {
+    width: 100%;
+    margin-top: var(--space-4);
+  }
+
+  .checkout-form__label {
+    font-size: var(--text-caption-size);
+    font-weight: var(--weight-semibold);
+    color: var(--color-text-subtle);
+    margin-bottom: var(--space-2);
+  }
+
+  .payment-plans {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+
+  .payment-plan {
+    display: flex;
+    gap: var(--space-3);
+    align-items: center;
+    border: 1px solid var(--color-line-strong);
+    border-radius: var(--radius-field);
+    padding: var(--space-4);
+  }
+
+  .payment-plan:has(input:checked) {
+    border-color: var(--color-accent);
+    background: var(--color-accent-soft);
+  }
+
+  /* Custom radio: a ring that fills solid when checked, not the browser's
+     own small native dot. */
+  .payment-plan input {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 24px;
+    height: 24px;
+    flex-shrink: 0;
+    margin: 0;
+    border: 2px solid var(--color-accent);
+    border-radius: 50%;
+    background: var(--color-bg);
+  }
+
+  .payment-plan input:checked {
+    /* Raw Figma accent, not the darker accessible -strong token: this is a
+       solid fill with no text on it, so the 3:1 UI-component minimum is
+       enough — no need for the 4.5:1 text variant here. */
+    background: var(--color-accent);
+    border-color: var(--color-accent);
+  }
+
+  .payment-plan__main {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+  }
+
+  .payment-plan__title {
+    display: block;
+    font-weight: var(--weight-semibold);
+  }
+
+  .payment-plan__sub {
+    display: block;
+    color: var(--color-text-subtle);
+    font-size: var(--text-caption-size);
+    margin-top: 0;
+  }
+
+  .payment-plan__amt {
+    flex-shrink: 0;
+    font-size: var(--text-h3-size);
+    font-weight: var(--weight-bold);
+  }
+
+  .express-pay {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-2);
+    margin-top: var(--space-4);
+  }
+
+  .express-pay__btn {
+    min-height: 44px;
+    border: none;
+    border-radius: var(--radius-pill);
+    background: var(--color-text);
+    color: var(--color-bg);
+    font-weight: var(--weight-semibold);
+  }
+
+  .express-pay__divider {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    color: var(--color-text-subtle);
+    font-size: var(--text-caption-size);
+    margin: var(--space-4) 0;
+  }
+
+  .express-pay__divider::before,
+  .express-pay__divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--color-line);
+  }
+
+  .pay-alert {
+    background: var(--color-error-bg);
+    color: var(--color-error);
+    border-radius: var(--radius-field);
+    padding: var(--space-3);
+    margin-bottom: var(--space-4);
+  }
+
+  .checkout-form__assurance {
+    text-align: center;
+    color: var(--color-text-subtle);
+    font-size: var(--text-caption-size);
+    margin-top: var(--space-3);
+  }
+
+  .checkout-form__assurance strong {
+    color: var(--color-ok-text);
+  }
+
+  /* ---------- state screens ---------- */
+  .state-screen {
+    padding-block: var(--space-6);
+    display: flex;
+    justify-content: center;
+  }
+
+  .state-card {
+    max-width: 480px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-5);
+  }
+
+  /* Heading + its paragraph read as one block, so they keep a tighter gap
+     than the 64px between the card's other top-level pieces (icon, this
+     block, the alt-date card, the actions). */
+  .state-card__intro {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-3);
+  }
+
+  .state-card h1 {
+    font-size: var(--text-display-size);
+    font-weight: var(--text-display-weight);
+    line-height: var(--text-display-lh);
+    letter-spacing: var(--text-display-ls);
+  }
+
+  .state-card p {
+    color: var(--color-text-subtle);
+  }
+
+  .alt-date {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--space-3);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-field);
+    padding: var(--space-2) var(--space-2) var(--space-2) var(--space-4);
+    text-align: left;
+  }
+
+  .alt-date__spots {
+    color: var(--color-ok-text);
+    font-size: var(--text-caption-size);
+    margin-top: 0;
+  }
+
+  .alt-date [data-alt-date-select] {
+    border-radius: var(--radius-field-lg);
+  }
+
+  .state-card__actions {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    margin-top: var(--space-2);
+  }
+
+  /* State-screen button text at regular weight (not the sitewide semibold). */
+  .state-card .btn {
+    font-weight: var(--weight-regular);
+  }
+
+  /* Every outline button's text on this page in the accent color — Veronika's
+     call, and never darker than the raw Figma #C97C5D (--color-accent-text
+     already is that value, see tokens.css). "Back to trip" is the one
+     exception: a plain gray link with no border, not a colored button. */
+  .checkout .btn--outline {
+    color: var(--color-accent-text);
+  }
+
+  .state-card__actions [data-back-link] {
+    border: none;
+    color: var(--color-text-subtle);
+  }
+
+  .state-card__note {
+    color: var(--color-ok-text);
+    font-weight: var(--weight-semibold);
+  }
+
+  @media (min-width: 768px) {
+    .checkout {
+      padding-top: 80px;
+    }
+
+    .checkout__grid {
+      grid-template-columns: 1fr 400px;
+      align-items: start;
+    }
+
+    /* Order summary is first in the DOM so it appears above the form on
+       mobile (the hold timer is the most time-critical thing on the page);
+       on desktop it moves back to its own sticky column on the right. */
+    .checkout-form {
+      order: 1;
+    }
+
+    .order-summary {
+      order: 2;
+      position: sticky;
+      top: var(--space-4);
+    }
+  }
+</style>

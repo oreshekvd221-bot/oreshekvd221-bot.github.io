@@ -1,0 +1,933 @@
+---
+// The header search: collapsed pill -> 3 steps (destination, dates, travelers).
+// Desktop: pill expands in place into a segmented bar; clicking a segment opens
+// a dropdown panel below it. Mobile: pill opens a full-screen sheet with the
+// same 3 steps as an accordion. Visuals follow Figma exactly — see
+// reference/figma/components/header-open*.png and dropdown-*.png (desktop),
+// reference/figma/mobile/search-*.png (mobile). The HTML prototype is only a
+// fallback for interaction details Figma doesn't show (per CLAUDE.md).
+import { getImage } from 'astro:assets';
+import toursData from '../data/tours.json';
+import searchIcon from '../assets/icons/search-circle-32.svg';
+import closeIcon from '../assets/icons/close-circle-30.svg';
+
+const images = import.meta.glob('../assets/images/*/*.{jpg,jpeg,png}', { eager: true });
+function coverModule(folder: string) {
+  const path = Object.keys(images)
+    .filter((key) => key.includes(`/images/${folder}/`))
+    .sort()[0];
+  return path ? images[path].default : null;
+}
+const coverEntries = await Promise.all(
+  toursData.tours.map(async (t) => {
+    const mod = coverModule(t.imageFolder);
+    if (!mod) return [t.slug, null];
+    const img = await getImage({ src: mod, width: 112, height: 112 });
+    return [t.slug, img.src];
+  }),
+);
+const coverMap = Object.fromEntries(coverEntries);
+
+// Larger crops for the "Recommended destinations" photo grid (desktop only).
+const gridEntries = await Promise.all(
+  toursData.tours.map(async (t) => {
+    const mod = coverModule(t.imageFolder);
+    if (!mod) return [t.slug, null];
+    const img = await getImage({ src: mod, width: 280, height: 170 });
+    return [t.slug, img.src];
+  }),
+);
+const gridCoverMap = Object.fromEntries(gridEntries);
+
+interface Props {
+  hideMobileTrigger?: boolean;
+}
+const { hideMobileTrigger = false } = Astro.props;
+---
+
+<div class="search-widget" data-search-widget>
+  <script type="application/json" id="search-cover-images" set:html={JSON.stringify(coverMap)} />
+  <script type="application/json" id="search-grid-images" set:html={JSON.stringify(gridCoverMap)} />
+
+  <button type="button" class="search-trigger search-trigger--desktop" data-search-trigger-desktop>
+    <span data-trigger-text>Search trips</span>
+    <img src={searchIcon.src} alt="" width="32" height="32" />
+  </button>
+
+  <div class="search-bar" data-search-bar hidden>
+    <button type="button" class="search-bar__segment" data-segment-trigger="dest" aria-expanded="false">
+      <span class="search-bar__label">Destination</span>
+      <span class="search-bar__value" data-segment-value="dest">Search destinations</span>
+    </button>
+    <span class="search-bar__divider" aria-hidden="true"></span>
+    <button type="button" class="search-bar__segment" data-segment-trigger="dates" aria-expanded="false">
+      <span class="search-bar__label">Dates</span>
+      <span class="search-bar__value" data-segment-value="dates">Add dates</span>
+    </button>
+    <span class="search-bar__divider" aria-hidden="true"></span>
+    <button type="button" class="search-bar__segment" data-segment-trigger="trav" aria-expanded="false">
+      <span class="search-bar__label">Travelers</span>
+      <span class="search-bar__value" data-segment-value="trav">Add guests</span>
+    </button>
+    <span class="search-bar__go-wrap">
+      <button type="button" class="search-bar__go" data-search-go aria-label="Search">
+        <img src={searchIcon.src} alt="" width="32" height="32" />
+      </button>
+    </span>
+  </div>
+
+  <div class="search-backdrop" data-search-backdrop hidden></div>
+
+  <div class="search-panel" data-search-panel hidden>
+    <div data-step-content="dest" hidden></div>
+    <div data-step-content="dates" hidden></div>
+    <div data-step-content="trav" hidden></div>
+  </div>
+
+  <button
+    type="button"
+    class="search-trigger search-trigger--mobile"
+    data-search-trigger-mobile
+    hidden={hideMobileTrigger}
+  >
+    <span data-trigger-text>Search trips</span>
+    <img src={searchIcon.src} alt="" width="32" height="32" />
+  </button>
+
+  <div class="search-sheet" data-search-sheet hidden role="dialog" aria-modal="true" aria-label="Find your trip">
+    <div class="search-sheet__head">
+      <h2>Find your trip</h2>
+      <button type="button" class="search-sheet__close" data-search-close>
+        <img src={closeIcon.src} alt="Close" width="30" height="30" />
+      </button>
+    </div>
+    <div class="search-sheet__body">
+      <div class="search-accordion">
+        <button type="button" class="search-accordion__summary" data-accordion-trigger="dest" aria-expanded="false">
+          <span>Destination</span>
+          <span data-accordion-value="dest">Anywhere</span>
+        </button>
+        <div class="search-accordion__body" data-accordion-body="dest" hidden></div>
+      </div>
+      <div class="search-accordion">
+        <button type="button" class="search-accordion__summary" data-accordion-trigger="dates" aria-expanded="false">
+          <span>Dates</span>
+          <span data-accordion-value="dates">Add dates</span>
+        </button>
+        <div class="search-accordion__body" data-accordion-body="dates" hidden></div>
+      </div>
+      <div class="search-accordion">
+        <button type="button" class="search-accordion__summary" data-accordion-trigger="trav" aria-expanded="false">
+          <span>Travelers</span>
+          <span data-accordion-value="trav">Add guests</span>
+        </button>
+        <div class="search-accordion__body" data-accordion-body="trav" hidden></div>
+      </div>
+    </div>
+    <div class="search-sheet__foot">
+      <button type="button" class="search-sheet__clear" data-search-clear>Clear all</button>
+      <button type="button" class="btn btn--solid search-sheet__go" data-search-go-mobile>Show trips</button>
+    </div>
+  </div>
+</div>
+
+<script src="../scripts/header-search.js"></script>
+
+<style>
+  .search-widget {
+    position: relative;
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    min-width: 0;
+  }
+
+  /* Collapsed trigger, shared look for mobile + desktop. Paddings per the
+     mockup: 24px before the text, 8px around the circular search button. */
+  .search-trigger {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-pill);
+    padding: var(--space-2) var(--space-2) var(--space-2) var(--space-4);
+    color: var(--color-text);
+    background: var(--color-bg);
+    width: 100%;
+  }
+
+  .search-trigger img {
+    border-radius: var(--radius-pill);
+    flex-shrink: 0;
+  }
+
+  .search-trigger--desktop {
+    display: none;
+    /* Collapsed, it hugs its content (text + icon) instead of stretching —
+       only the expanded bar fills the available width. */
+    width: auto;
+    gap: var(--space-4);
+  }
+
+  .search-trigger--mobile {
+    width: 100%;
+  }
+
+  /* Desktop segmented bar. No padding on the bar itself: the active segment's
+     beige fill must reach the outer edge (clipped to the pill shape by
+     overflow:hidden), not sit inset inside a padded container. */
+  .search-bar {
+    display: none;
+    align-items: stretch;
+    border: 1px solid var(--color-line-strong);
+    border-radius: var(--radius-pill);
+    background: var(--color-bg);
+    overflow: hidden;
+    width: 100%;
+    max-width: 640px;
+    position: relative;
+    z-index: 70;
+  }
+
+  /* Once a panel is open and the backdrop blurs the page behind it, the
+     bar's own outline just reads as a stray line, so it's dropped. */
+  .search-bar.is-panel-open {
+    border-color: transparent;
+  }
+
+  .search-bar__segment {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 2px;
+    border: none;
+    background: none;
+    padding: var(--space-2) var(--space-4);
+    text-align: left;
+  }
+
+  .search-bar__segment.is-active {
+    background: var(--color-accent-soft);
+    border-radius: var(--radius-pill);
+  }
+
+  /* Travelers is the last segment, right next to the search button — when
+     it's active its fill merges with the button into one capsule, so the
+     corners facing each other are squared off and only the two outer ends
+     stay rounded. */
+  .search-bar__segment[data-segment-trigger='trav'].is-active {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+  }
+
+  .search-bar__segment.is-muted .search-bar__label {
+    color: var(--color-text-subtle);
+    font-weight: var(--weight-regular);
+  }
+
+  .search-bar__label {
+    font-weight: var(--weight-semibold);
+    font-size: var(--text-body-size);
+    color: var(--color-text);
+  }
+
+  .search-bar__value {
+    color: var(--color-text-subtle);
+    font-size: var(--text-caption-size);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+  }
+
+  .search-bar__divider {
+    width: 1px;
+    background: var(--color-line);
+    margin-block: var(--space-3);
+  }
+
+  .search-bar__divider.is-hidden {
+    background: transparent;
+  }
+
+  .search-bar__go-wrap {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    padding: var(--space-2);
+  }
+
+  .search-bar__go-wrap.is-active {
+    background: var(--color-accent-soft);
+    border-radius: var(--radius-pill);
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+  }
+
+  .search-bar__go {
+    flex-shrink: 0;
+    border: none;
+    background: none;
+    padding: 0;
+  }
+
+  .search-bar__go img {
+    border-radius: var(--radius-pill);
+  }
+
+  /* Backdrop: blurs everything behind the open panel/sheet (not the panel itself). */
+  .search-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(44, 53, 36, 0.12);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    z-index: 55;
+  }
+
+  /* Desktop dropdown panel: shadow only, no border, 20px below the bar, and
+     the exact same width as the expanded search bar. Padding: 32px top/bottom,
+     24px sides; 32px between each internal block (recent/recommended, etc). */
+  .search-panel {
+    position: absolute;
+    top: calc(100% + 20px);
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: 640px;
+    background: var(--color-bg);
+    border: none;
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-popover);
+    padding: var(--space-5) var(--space-4);
+    z-index: 60;
+    /* 100px covers the header above the panel (logo row + its own 20px
+       gap); 20px is just breathing room at the bottom. A flat 70vh left
+       noticeably less room than that on real (non-maximized) windows,
+       triggering a scrollbar steps like Dates don't actually need. */
+    max-height: calc(100vh - 120px);
+    overflow-y: auto;
+    /* Hidden on purpose, only for the panel's own vertical scrollbar — it
+       stays scrollable (wheel/touch/keyboard) on short windows, it just
+       doesn't draw a bar while doing it. The cards row below keeps its own
+       horizontal scrollbar; this doesn't touch that. */
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .search-panel::-webkit-scrollbar {
+    display: none;
+  }
+
+  @media (min-width: 768px) {
+    .search-trigger--desktop {
+      display: flex;
+    }
+
+    .search-trigger--mobile {
+      display: none;
+    }
+
+    .search-bar {
+      display: flex;
+    }
+
+    .search-bar[hidden] {
+      display: none;
+    }
+
+    /* The destination search field only appears in the mobile sheet in Figma. */
+    .search-panel :global(.search-step__search) {
+      display: none;
+    }
+  }
+
+  /* Mobile full-screen sheet. `display: none` is written out explicitly,
+     not left to the `[hidden]` attribute alone — on some mobile WebKit
+     versions a `position: fixed` element can stay in the touch hit-test
+     layer even while hidden that way, silently blocking taps underneath. */
+  .search-sheet {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: var(--color-surface);
+    z-index: 100;
+    flex-direction: column;
+  }
+
+  .search-sheet:not([hidden]) {
+    display: flex;
+  }
+
+  .search-sheet__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-4);
+    flex-shrink: 0;
+  }
+
+  .search-sheet__head h2 {
+    font-size: var(--text-h2-size);
+    color: var(--color-accent-text);
+  }
+
+  .search-sheet__close {
+    border: none;
+    background: none;
+    padding: 0;
+  }
+
+  .search-sheet__body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0 var(--space-4) var(--space-4);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .search-sheet__foot {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+    padding: var(--space-3) var(--space-4) var(--space-5);
+  }
+
+  .search-sheet__clear {
+    background: none;
+    border: none;
+    color: var(--color-text-subtle);
+    min-height: 44px;
+  }
+
+  .search-sheet__go {
+    flex: 1;
+  }
+
+  .search-accordion {
+    background: var(--color-bg);
+    border-radius: var(--radius-card);
+    overflow: hidden;
+    /* Without this, overflow:hidden gives the item an automatic min-height
+       of 0 inside the column flex body, so the flexbox algorithm shrinks an
+       expanded accordion down to fit the sheet instead of letting the body
+       scroll — the content gets clipped and the sheet looks "stuck". */
+    flex-shrink: 0;
+  }
+
+  .search-accordion__summary {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--space-3);
+    min-height: 56px;
+    padding: var(--space-3) var(--space-4);
+    background: none;
+    border: none;
+    text-align: left;
+    font-weight: var(--weight-semibold);
+    font-size: var(--text-h3-size);
+  }
+
+  .search-accordion__summary span:last-child {
+    color: var(--color-text-subtle);
+    font-weight: var(--weight-regular);
+    font-size: var(--text-body-size);
+    text-align: right;
+  }
+
+  .search-accordion__body {
+    padding: 0 var(--space-4) var(--space-4);
+  }
+
+  /* Step content, shared by desktop panel + mobile accordion bodies */
+  .search-widget :global(.search-step__search) {
+    position: relative;
+    margin-bottom: var(--space-3);
+  }
+
+  .search-widget :global(.search-step__input) {
+    width: 100%;
+    min-height: 44px;
+    padding-left: var(--space-3);
+    padding-right: 44px;
+    border: 1px solid var(--color-line-strong);
+    border-radius: var(--radius-pill);
+    background: var(--color-bg);
+    font-family: inherit;
+    font-size: var(--text-body-size);
+    color: var(--color-text);
+  }
+
+  /* Tuck the focus ring just inside the pill instead of the default offset
+     outline, which sits outside the rounded corners and reads as a second,
+     squared-off border. */
+  .search-widget :global(.search-step__input:focus-visible) {
+    outline-offset: -2px;
+  }
+
+  .search-widget :global(.search-step__search-icon) {
+    position: absolute;
+    top: 50%;
+    right: 6px;
+    transform: translateY(-50%);
+    pointer-events: none;
+  }
+
+  .search-widget :global(.search-step__heading) {
+    font-size: var(--text-h3-size);
+    font-weight: var(--text-h3-weight);
+    margin-bottom: var(--space-3);
+  }
+
+  .search-widget :global(.search-step__label) {
+    font-size: var(--text-caption-size);
+    font-weight: var(--weight-semibold);
+    color: var(--color-text-subtle);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    margin: var(--space-5) 0 var(--space-2);
+  }
+
+  /* :first-of-type, not :first-child — the Destination step's search input
+     (hidden on desktop) sits before the first label in the markup, so
+     :first-child would never match it and the panel would show the 32px
+     padding-top *plus* another 32px label margin on top. */
+  .search-widget :global(.search-step__label:first-of-type) {
+    margin-top: 0;
+  }
+
+  .search-widget :global(.search-step__empty) {
+    color: var(--color-text-subtle);
+    margin-bottom: var(--space-3);
+  }
+
+  /* Recent searches: compact row */
+  .search-widget :global(.search-row-list) {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .search-widget :global(.search-row) {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    min-height: 56px;
+    padding: var(--space-2);
+    border: none;
+    background: none;
+    border-radius: var(--radius-field);
+    text-align: left;
+  }
+
+  .search-widget :global(.search-row:hover) {
+    background: var(--color-accent-soft);
+  }
+
+  .search-widget :global(.search-row__thumb) {
+    width: 56px;
+    height: 56px;
+    border-radius: var(--radius-field);
+    flex-shrink: 0;
+    object-fit: cover;
+    background: var(--color-accent-soft);
+  }
+
+  .search-widget :global(.search-row__name) {
+    display: block;
+    font-weight: var(--weight-semibold);
+    font-size: var(--text-h3-size);
+  }
+
+  .search-widget :global(.search-row__sub) {
+    display: block;
+    color: var(--color-text-subtle);
+  }
+
+  /* Recommended destinations: a horizontal scroll row (desktop), not a
+     wrapping grid — about 2.5 cards show at once, hinting there's more to
+     scroll to, same as the departure-date row below. */
+  .search-widget :global(.search-tile-row) {
+    display: flex;
+    gap: var(--space-3);
+    overflow-x: auto;
+    padding-bottom: var(--space-1);
+  }
+
+  .search-widget :global(.search-tile) {
+    flex: 0 0 auto;
+    width: calc((100% - var(--space-3) * 2) / 2.5);
+    border: none;
+    background: none;
+    padding: 0;
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+  }
+
+  .search-widget :global(.search-tile__photo) {
+    display: block;
+    aspect-ratio: 280 / 170;
+    border-radius: var(--radius-field);
+    overflow: hidden;
+    background: var(--color-surface);
+  }
+
+  .search-widget :global(.search-tile__photo img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .search-widget :global(.search-tile__name) {
+    font-weight: var(--weight-semibold);
+    font-size: var(--text-h3-size);
+    margin-top: var(--space-1);
+  }
+
+  .search-widget :global(.search-tile__sub) {
+    color: var(--color-text-subtle);
+  }
+
+  /* Departure date cards: horizontal row. 2.5 cards show at once (per
+     Figma) with the rest reachable by scrolling — a fixed flex-basis keeps
+     every card the same width regardless of how long its date range text
+     is, instead of each card sizing to fit its own content. */
+  .search-widget :global(.search-depcard-row) {
+    display: flex;
+    gap: var(--space-3);
+    overflow-x: auto;
+    padding-bottom: var(--space-1);
+    margin-bottom: var(--space-4);
+  }
+
+  .search-widget :global(.search-depcard) {
+    flex: 0 0 calc((100% - 2 * var(--space-3)) / 2.5);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-1);
+    border: 1px solid transparent;
+    background: var(--color-surface);
+    border-radius: var(--radius-field-lg);
+    padding: var(--space-3) var(--space-2);
+    text-align: left;
+  }
+
+  .search-widget :global(.search-depcard__range) {
+    /* 14px, not the 16px body size — the card is only 113px wide (2.5 per
+       row), and our date labels carry a year ("Sep 28 – Oct 3, 2027") that
+       Figma's placeholder text doesn't, so this is as small as it can go
+       and stay at the 14px floor for body text (CLAUDE.md accessibility). */
+    font-size: 14px;
+    font-weight: var(--weight-semibold);
+    /* .search-depcard is a <button> — buttons don't inherit text color by
+       default in every browser, so this needs to be explicit. */
+    color: var(--color-text);
+  }
+
+  .search-widget :global(.search-depcard__days) {
+    color: var(--color-text-subtle);
+    font-size: var(--text-caption-size);
+  }
+
+  .search-widget :global(.search-depcard__status) {
+    color: var(--color-scarce-text);
+    font-size: var(--text-caption-size);
+    font-weight: var(--weight-regular);
+  }
+
+  .search-widget :global(.search-depcard.is-selected) {
+    background: var(--color-bg);
+    border-color: var(--color-accent);
+  }
+
+  .search-widget :global(.search-depcard.is-selected .search-depcard__range),
+  .search-widget :global(.search-depcard.is-selected .search-depcard__days) {
+    color: var(--color-accent-text);
+  }
+
+  .search-widget :global(.search-depcard.is-selected .search-depcard__status) {
+    background: var(--color-accent-soft);
+    padding: 2px var(--space-2);
+    border-radius: var(--radius-pill);
+  }
+
+  .search-widget :global(.search-depcard:disabled) {
+    opacity: 0.5;
+  }
+
+  /* Calendar */
+  .search-widget :global(.search-cal__head) {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-4);
+    margin-bottom: var(--space-3);
+  }
+
+  .search-widget :global(.search-cal__nav) {
+    border: none;
+    background: none;
+    padding: var(--space-1);
+    min-width: 44px;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .search-widget :global(.search-cal__title) {
+    font-weight: var(--weight-semibold);
+    font-size: var(--text-body-size);
+    min-width: 11em;
+    text-align: center;
+  }
+
+  .search-widget :global(.search-cal__weekdays) {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    text-align: center;
+    color: var(--color-text-subtle);
+    font-size: var(--text-caption-size);
+    margin-bottom: var(--space-2);
+  }
+
+  .search-widget :global(.search-cal__grid) {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+  }
+
+  /* Desktop panel only: fixed, compact day cells instead of stretching to
+     fill the panel's width — matches the Figma size and keeps the whole
+     step short enough to need no scrolling. The mobile sheet is much
+     narrower already, so its cells stay 1fr-stretched there (that's what
+     keeps them at a touch-friendly ~44px). */
+  .search-panel :global(.search-cal) {
+    --cal-grid-width: calc(32px * 7 + 4px * 6);
+    width: max-content;
+    max-width: 100%;
+    margin-inline: auto;
+  }
+
+  .search-panel :global(.search-cal__weekdays),
+  .search-panel :global(.search-cal__grid) {
+    grid-template-columns: repeat(7, 32px);
+  }
+
+  /* The nav arrows sit at the edges of a row pinned to the grid's own
+     width, with the title centered in whatever space is left — so the
+     arrows stay put no matter how long the month name is ("May 2027" vs
+     "September 2027"), instead of drifting with the title's text width. */
+  .search-panel :global(.search-cal__head) {
+    width: var(--cal-grid-width);
+    justify-content: space-between;
+  }
+
+  .search-panel :global(.search-cal__title) {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .search-widget :global(.search-cal__day) {
+    aspect-ratio: 1;
+    border: none;
+    background: none;
+    border-radius: 50%;
+    color: var(--color-text);
+    font-size: var(--text-caption-size);
+  }
+
+  .search-widget :global(.search-cal__day:disabled) {
+    cursor: default;
+  }
+
+  .search-widget :global(.search-cal__day--muted) {
+    color: var(--color-text-subtle);
+    opacity: 0.5;
+  }
+
+  .search-widget :global(.search-cal__day--today) {
+    border: 1px solid var(--color-accent);
+    color: var(--color-accent-text);
+  }
+
+  .search-widget :global(.search-cal__day--ok) {
+    background: var(--color-ok-bg);
+    color: var(--color-ok-text);
+  }
+
+  .search-widget :global(.search-cal__day--scarce) {
+    background: var(--color-scarce-bg);
+    color: var(--color-scarce-text);
+  }
+
+  .search-widget :global(.search-cal__day--fill) {
+    background: var(--color-accent-soft);
+    color: var(--color-accent-text);
+  }
+
+  .search-widget :global(.search-cal__day--edge) {
+    background: var(--color-accent-strong);
+    color: var(--color-on-accent);
+    font-weight: var(--weight-semibold);
+  }
+
+  .search-widget :global(.search-cal__legend) {
+    display: flex;
+    gap: var(--space-4);
+    margin-top: var(--space-3);
+    color: var(--color-text-subtle);
+    font-size: var(--text-caption-size);
+  }
+
+  .search-widget :global(.search-cal__legend span) {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+  }
+
+  .search-widget :global(.search-cal__dot) {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+
+  .search-widget :global(.search-cal__dot--today) {
+    border: 1px solid var(--color-accent);
+  }
+
+  .search-widget :global(.search-cal__dot--selected) {
+    background: var(--color-accent-strong);
+  }
+
+  .search-widget :global(.search-step__taken) {
+    display: flex;
+    justify-content: space-between;
+    color: var(--color-text-subtle);
+    font-size: var(--text-caption-size);
+    margin-bottom: var(--space-1);
+  }
+
+  .search-widget :global(.search-step__taken strong) {
+    /* <strong> is bold by browser default — Figma just uses a darker color
+       for emphasis here, same weight as the rest of the line. */
+    font-weight: var(--weight-regular);
+    color: var(--color-text);
+  }
+
+  .search-widget :global(.search-step__bar) {
+    height: 4px;
+    border-radius: var(--radius-pill);
+    background: var(--color-line);
+    margin-bottom: var(--space-3);
+    overflow: hidden;
+  }
+
+  .search-widget :global(.search-step__bar span) {
+    display: block;
+    height: 100%;
+    background: var(--color-accent-strong);
+  }
+
+  .search-widget :global(.search-step__row) {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--space-3);
+    padding-block: var(--space-2);
+  }
+
+  /* Divider between rows only — not after the last one (Children), where
+     Figma has no line before the "You can add N more spots" hint. */
+  .search-widget :global(.search-step__row + .search-step__row) {
+    border-top: 1px solid var(--color-line);
+  }
+
+  .search-widget :global(.search-step__row-title) {
+    font-weight: var(--weight-semibold);
+  }
+
+  .search-widget :global(.search-step__row-sub) {
+    color: var(--color-text-subtle);
+    font-size: var(--text-caption-size);
+  }
+
+  .search-widget :global(.stepper) {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    flex-shrink: 0;
+  }
+
+  .search-widget :global(.stepper button) {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    background: none;
+    padding: 0;
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  .search-widget :global(.stepper button:disabled) {
+    opacity: 0.4;
+  }
+
+  .search-widget :global(.stepper span) {
+    min-width: 1.5em;
+    text-align: center;
+  }
+
+  .search-widget :global(.search-step__hint) {
+    color: var(--color-text-subtle);
+    font-size: var(--text-caption-size);
+    margin-top: var(--space-3);
+  }
+
+  /* Empty-state gate card: reference/figma/components/dropdown-travelers-data.png */
+  .search-widget :global(.search-gate) {
+    text-align: center;
+    padding-block: var(--space-4);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  .search-widget :global(.search-gate__heading) {
+    font-size: var(--text-h3-size);
+    font-weight: var(--text-h3-weight);
+  }
+
+  .search-widget :global(.search-gate__body) {
+    color: var(--color-text-subtle);
+    max-width: 320px;
+  }
+
+  .search-widget :global(.search-gate__btn) {
+    margin-top: var(--space-3);
+    width: 100%;
+    max-width: 280px;
+  }
+
+  .search-widget :global(.search-gate__close) {
+    background: none;
+    border: none;
+    color: var(--color-text-subtle);
+    min-height: 44px;
+  }
+</style>

@@ -1,0 +1,249 @@
+---
+// Static page: the booking only exists at runtime in localStorage (saved by
+// checkout.js), read here via ?booking=<id> — see CLAUDE.md routes table.
+// Layout: reference/figma/desktop+mobile/08-checkout-booking-confirmed.png.
+import Layout from '../../layouts/Layout.astro';
+import checkIcon from '../../assets/icons/check-circle-success-70.svg';
+---
+
+<Layout title="Booking confirmed" headerVariant="checkout">
+  <div class="container confirmation" data-confirmation-root>
+    <div class="state-screen" data-view="confirmed" hidden>
+      <div class="state-card confirmation__card">
+        <img src={checkIcon.src} alt="" width="70" height="70" />
+        <h1>Booking confirmed</h1>
+        <p>We've sent the details to <strong data-conf-email></strong></p>
+        <p class="confirmation__ref" data-conf-ref></p>
+
+        <dl class="confirmation__facts">
+          <div><dt>Trip</dt><dd data-conf-trip></dd></div>
+          <div><dt>Dates</dt><dd data-conf-dates></dd></div>
+          <div><dt>Group</dt><dd data-conf-group></dd></div>
+          <div><dt data-conf-paid-label>Paid</dt><dd data-conf-paid></dd></div>
+        </dl>
+
+        <div class="confirmation__next">
+          <h2>What's next</h2>
+          <div class="confirmation__step">
+            <span class="confirmation__step-num">1</span>
+            <div>
+              Enter passport details for all travelers
+              <p class="confirmation__step-note">Link in the email, within 7 days</p>
+            </div>
+          </div>
+          <div class="confirmation__step" data-step-rest hidden>
+            <span class="confirmation__step-num">2</span>
+            <div data-step-rest-text></div>
+          </div>
+          <div class="confirmation__step">
+            <span class="confirmation__step-num" data-step-list-num>2</span>
+            <div>
+              We'll send a packing list and on-trip contact details
+              <p class="confirmation__step-note">14 days before departure</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="confirmation__actions">
+          <button type="button" class="btn btn--outline" data-ics-btn>Add to calendar</button>
+          <button type="button" class="btn btn--outline" data-voucher-btn>Download voucher</button>
+        </div>
+
+        <div class="confirmation__account-offer">
+          <div>
+            <p class="confirmation__account-offer-title">Save this booking to your account</p>
+            <p class="confirmation__account-offer-sub">Sign in with a link from the email, no password needed.</p>
+          </div>
+          <button type="button" class="btn btn--outline" data-account-btn>Create account</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="state-screen" data-view="notfound" hidden>
+      <div class="state-card">
+        <h1>We couldn't find that booking</h1>
+        <p>
+          This link only works in the browser that completed the booking — bookings are stored locally, not on a
+          server.
+        </p>
+        <div class="state-card__actions">
+          <a href="/tours" class="btn btn--solid">Browse all trips</a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</Layout>
+
+<script src="../../scripts/confirmation.js"></script>
+
+<style>
+  .confirmation {
+    padding-block: var(--space-4) var(--space-6);
+  }
+
+  .state-screen {
+    display: flex;
+    justify-content: center;
+    padding-block: var(--space-5);
+  }
+
+  .state-card {
+    max-width: 480px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-3);
+  }
+
+  .state-card h1 {
+    font-size: var(--text-display-size);
+    font-weight: var(--text-display-weight);
+    line-height: var(--text-display-lh);
+    letter-spacing: var(--text-display-ls);
+  }
+
+  .state-card p {
+    color: var(--color-text-subtle);
+  }
+
+  .state-card__actions {
+    margin-top: var(--space-2);
+  }
+
+  .confirmation__card {
+    max-width: 560px;
+  }
+
+  .confirmation__ref {
+    display: inline-block;
+    background: var(--color-ok-bg);
+    color: var(--color-ok-text);
+    font-weight: var(--weight-regular);
+    padding: var(--space-2) var(--space-4);
+    border-radius: var(--radius-pill);
+  }
+
+  .confirmation__facts {
+    width: 100%;
+    text-align: left;
+    border-top: 1px solid var(--color-line);
+    margin: var(--space-3) 0 0;
+    padding-top: var(--space-3);
+  }
+
+  .confirmation__facts div {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--space-3);
+    padding-block: var(--space-1);
+  }
+
+  .confirmation__facts dt {
+    color: var(--color-text-subtle);
+  }
+
+  .confirmation__facts dd {
+    margin: 0;
+    font-weight: var(--weight-semibold);
+    text-align: right;
+  }
+
+  .confirmation__next {
+    width: 100%;
+    text-align: left;
+    border-top: 1px solid var(--color-line);
+    margin-top: var(--space-3);
+    padding-top: var(--space-4);
+  }
+
+  .confirmation__next h2 {
+    font-size: var(--text-h3-size);
+    margin-bottom: var(--space-3);
+  }
+
+  .confirmation__step {
+    display: flex;
+    gap: var(--space-3);
+    padding-block: var(--space-2);
+  }
+
+  .confirmation__step-num {
+    flex-shrink: 0;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: var(--color-accent-soft);
+    color: var(--color-accent-text);
+    font-size: var(--text-caption-size);
+    font-weight: var(--weight-bold);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* :global() — the step 2 version of this note is built by confirmation.js
+     (innerHTML into data-step-rest-text), so it never gets Astro's scoping
+     attribute and a plain scoped selector would silently never match it. */
+  :global(.confirmation__step-note) {
+    color: var(--color-text-subtle);
+    font-size: var(--text-caption-size);
+    margin: 0;
+  }
+
+  .confirmation__actions {
+    display: flex;
+    gap: var(--space-2);
+    width: 100%;
+    margin-top: var(--space-4);
+    flex-wrap: wrap;
+  }
+
+  .confirmation__actions .btn {
+    flex: 1;
+    min-width: 140px;
+  }
+
+  /* Outline button text in the accent color, regular weight — matches the
+     rest of checkout (never darker than the raw Figma #C97C5D; that's what
+     --color-accent-text already is, see tokens.css). */
+  .confirmation .btn {
+    font-weight: var(--weight-regular);
+  }
+
+  .confirmation .btn--outline {
+    color: var(--color-accent-text);
+  }
+
+  .confirmation__account-offer {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    background: var(--color-bg);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-field);
+    padding: var(--space-4);
+    margin-top: var(--space-4);
+    text-align: left;
+  }
+
+  .confirmation__account-offer-title {
+    font-weight: var(--weight-semibold);
+  }
+
+  .confirmation__account-offer-sub {
+    color: var(--color-text-subtle);
+    font-size: var(--text-caption-size);
+    margin-top: 0;
+  }
+
+  @media (min-width: 480px) {
+    .confirmation__account-offer {
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+    }
+  }
+</style>
