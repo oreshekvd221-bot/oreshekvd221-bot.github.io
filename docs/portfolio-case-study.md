@@ -142,8 +142,8 @@ Built mobile-first, not scaled down from desktop:
 
 **Wanderloop** — a booking flow designed around the moments that actually decide whether someone books: how many seats are left, what happens when they run out, and whether the traveler can trust what the page is telling them.
 
-Live project: *[add link once hosted]*
-Figma: *[add Figma link]*
+Live project: [oreshekvd221-bot.github.io](https://oreshekvd221-bot.github.io/)
+Figma: [Wanderloop](https://www.figma.com/design/SnDOwATqmu62RQDeKjuz9i/Wanderloop)
 
 *Visual: `home-mobile.png` and `home-desktop.png` together, or your usual closing-slide treatment.*
 
